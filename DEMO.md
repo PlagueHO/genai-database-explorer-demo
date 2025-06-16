@@ -1,4 +1,69 @@
-"The first line should be summary of no more than 50 characters starting with classification of commit from: `CHORE:`|`FIX:`|`CHANGE:`|`BREAKING CHANGE:`|`TESTS:`|`SECURITY:`|`COMPLEX:`. The second line should be blank. The following lines should be the full summary with each item starting with a `-`. Any summary item that is security related should start with `SECURITY:`. Any summary item change that causes a breaking change to a feature/interface/dependency should start with `BREAKING CHANGE:`"
+# Demo steps
+
+## Part 1 - Customize Copilot
+
+### Set up Commit Message Template
+
+```json
+
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "The first line should be summary of no more than 50 characters starting with classification of commit from: `CHORE:`|`FIX:`|`CHANGE:`|`BREAKING CHANGE:`|`TESTS:`|`SECURITY:`|`COMPLEX:`. The second line should be blank. The following lines should be the full summary with each item starting with a `-`. Any summary item that is security related should start with `SECURITY:`. Any summary item change that causes a breaking change to a feature/interface/dependency should start with `BREAKING CHANGE:`"
+        }
+    ]
+```
+
+### Set up MCP Servers
+
+```json
+{
+    "servers": {
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "${input:baseDirectory}"
+            ],
+            "type": "stdio",
+            "env": {}
+        },
+        "playwright": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@playwright/mcp@latest"
+            ],
+            "type": "stdio",
+            "env": {}
+        },
+        "github": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-github"
+            ],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
+            }
+        }
+    },
+    "inputs": [
+        {
+            "id": "baseDirectory",
+            "type": "promptString",
+            "description": "Enter the base directory path for the server"
+        },
+        {
+            "id": "github_token",
+            "type": "promptString",
+            "description": "GitHub Personal Access Token",
+            "password": true
+        }        
+    ]
+}
+```
+
 
 Check that the #file:main.bicep meets the specifications outlined in #file:infrastructure-deployment-bicep-avm.md. If it doesn't meet any of the requirements, list them in a table and identify why they don't meet the requirement and how to resolve it.
 
