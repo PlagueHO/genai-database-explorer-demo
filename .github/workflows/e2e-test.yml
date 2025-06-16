@@ -1,0 +1,66 @@
+name: End-to-End Test
+
+on:
+  workflow_call:
+    inputs:
+      ENVIRONMENT:
+        description: "The environment to use for E2E testing"
+        required: true
+        type: string
+      BUILD_VERSION:
+        description: "The version of the build to deploy to the application resources"
+        required: true
+        type: string
+      AZURE_LOCATION:
+        description: "The Azure region to deploy the application resources to"
+        required: true
+        type: string
+      AZURE_ENV_NAME:
+        description: "The name of the Azure environment"
+        required: true
+        type: string
+        
+    secrets:
+      AZURE_TENANT_ID:
+        description: "The Azure tenant ID to use for authentication to Azure for deployment"
+        required: true
+      AZURE_SUBSCRIPTION_ID:
+        description: "The Azure subscription ID to use for authentication to Azure for deployment"
+        required: true
+      AZURE_CLIENT_ID:
+        description: "The Azure client ID to use for authentication to Azure for deployment"
+        required: true
+      SQL_SERVER_USERNAME:
+        description: "The SQL Server username for the application"
+        required: true
+      SQL_SERVER_PASSWORD:
+        description: "The SQL Server password for the application"
+        required: true
+
+jobs:
+  provision-infrastructure:
+    uses: ./.github/workflows/provision-infrastructure.yml
+    with:
+      ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+      BUILD_VERSION: ${{ inputs.BUILD_VERSION }}
+      AZURE_LOCATION: ${{ inputs.AZURE_LOCATION }}
+      AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      SQL_SERVER_USERNAME: ${{ secrets.SQL_SERVER_USERNAME }}
+      SQL_SERVER_PASSWORD: ${{ secrets.SQL_SERVER_PASSWORD }}
+
+  delete-infrastructure:
+    needs: [provision-infrastructure]
+    if: always()
+    uses: ./.github/workflows/delete-infrastructure.yml
+    with:
+      ENVIRONMENT: ${{ inputs.ENVIRONMENT }}
+      AZURE_LOCATION: ${{ inputs.AZURE_LOCATION }}
+      AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
