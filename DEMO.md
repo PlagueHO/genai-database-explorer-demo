@@ -87,13 +87,13 @@
 Switch to `/expert_dotnet_software_engineer` chat mode:
 
 ```md
-Review the Data Semantic Model Persistence Repository specification making any note of performance problems, especially as we increase the number of entities? List these as a table containing:
+Review the #file:data-semantic-model-persistence-repository.md  making any note of performance problems, especially as we increase the number of entities? List these as a table containing:
 - Issue description
 - Recommendation to resolve
 - Priority (High, Medium, Low)
 - Diffiulty to implement (High, Medium, Low)
 - Benefit of resolving the issue
-- Which engineering discipline recommdended it.
+- Which engineering discipline recommended it.
 - Include diagrams if appropriate to demonstrating the issue.
 ```
 
