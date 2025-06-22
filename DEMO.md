@@ -84,10 +84,10 @@
 
 ### Create a specification for the Semantic Model Persistence Repository
 
-Switch to /plan
+Switch to `/expert_dotnet_software_engineer` chat mode:
 
 ```md
-
+Review the #
 ```
 
 ```md
