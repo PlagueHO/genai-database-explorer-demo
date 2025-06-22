@@ -97,6 +97,12 @@ Review the #file:data-semantic-model-persistence-repository.md  making any note 
 - Include diagrams if appropriate to demonstrating the issue.
 ```
 
+Switch to `jannitor` chat mode:
+
+```md
+Hey, what janitorial work is needed for the semantic repository?
+```
+
 ```md
 /create_spec SpecPurpose:Persisting the Semantic Model for a Database Schema for the Generative AI database explorer using a repository pattern. Define the specification requirements based on the current implementation in the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Ensure you refer to the relevant interfaces.
 ```
