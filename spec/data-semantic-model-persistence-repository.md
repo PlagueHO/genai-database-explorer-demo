@@ -1,13 +1,13 @@
 ---
-title: Data Persistence for Semantic Model Repository Pattern
-version: 1.1
-date_created: 2025-06-16
-last_updated: 2025-06-16
-owner: GenAI Database Explorer Development Team
-tags: [data, repository, semantic-model, persistence, database, generative-ai, lazy-loading, change-tracking]
+title: Semantic Model Persistence Repository Pattern Specification
+version: 1.0
+date_created: 2025-06-22
+last_updated: 2025-06-22
+owner: GenAI Database Explorer Team
+tags: [data, repository, persistence, semantic-model, generative-ai]
 ---
 
-A specification defining the requirements, constraints, and interfaces for persisting semantic database models using a repository pattern in the Generative AI database explorer application.
+This specification defines the requirements, constraints, and interfaces for implementing the repository pattern to persist semantic models extracted from database schemas for the GenAI Database Explorer application.
 
 ## 1. Purpose & Scope
 
@@ -38,8 +38,6 @@ This specification defines the requirements for implementing a repository patter
 - **Semantic Model Provider**: A service that orchestrates the creation, extraction, and management of semantic models
 - **Lazy Loading**: A design pattern that defers the loading of data until it is actually needed, reducing initial memory usage
 - **Dirty Tracking**: A mechanism that monitors changes to objects and identifies which entities need to be persisted
-- **Entity Proxy**: A surrogate object that implements lazy loading by intercepting property access and loading data on demand
-- **Change Tracker**: A component that monitors modifications to entities and maintains state information for persistence optimization
 
 ## 3. Requirements, Constraints & Guidelines
 
@@ -58,27 +56,27 @@ This specification defines the requirements for implementing a repository patter
 
 ### Security Requirements
 
-- **SEC-001**: All file I/O operations MUST validate paths to prevent directory traversal attacks
-- **SEC-002**: Sensitive connection string information MUST be handled securely in persistence operations
-- **SEC-003**: File permissions MUST be appropriately set for semantic model storage directories
+- **SEC-001**: All file I/O operations MUST validate input paths to prevent directory traversal attacks
+- **SEC-002**: The repository MUST sanitize entity names before using them in file paths
+- **SEC-003**: Access to persistence operations MUST be controlled through proper authentication mechanisms
+- **SEC-004**: Sensitive connection strings and configuration data MUST be handled securely
+- **SEC-005**: All JSON serialization MUST be protected against injection attacks
 
 ### Performance Requirements
 
-- **PER-001**: The repository MUST support parallel processing for entity extraction and persistence
-- **PER-002**: Large semantic models MUST be persisted incrementally to avoid memory exhaustion
-- **PER-003**: The implementation MUST provide configurable parallelism levels
-- **PER-004**: Lazy loading MUST be implemented to defer entity loading until first access
-- **PER-005**: Dirty tracking MUST minimize save operations by persisting only modified entities
-- **PER-006**: Entity proxies MUST be used to enable transparent lazy loading behavior
+- **PER-001**: The repository MUST support concurrent operations without data corruption
+- **PER-002**: Entity loading operations MUST complete within 5 seconds for models with up to 1000 entities
+- **PER-003**: The repository MUST implement efficient caching mechanisms to minimize disk I/O
+- **PER-004**: Parallel processing MUST be utilized for bulk operations where applicable
+- **PER-005**: Memory usage MUST be optimized through lazy loading and proxy patterns
 
 ### Constraints
 
-- **CON-001**: The repository implementation MUST be thread-safe for concurrent operations
-- **CON-002**: File-based persistence MUST use JSON format for human readability and tool compatibility
-- **CON-003**: The implementation MUST maintain backward compatibility with existing semantic model formats
-- **CON-004**: Memory usage MUST be optimized for large database schemas with thousands of entities
-- **CON-005**: Lazy loaded entities MUST maintain referential integrity when accessed across different contexts
-- **CON-006**: Dirty tracking state MUST be thread-safe for concurrent entity modifications
+- **CON-001**: The implementation MUST be compatible with .NET 9 and modern C# language features
+- **CON-002**: File-based persistence MUST use UTF-8 encoding for all text operations
+- **CON-003**: Entity files MUST be saved with human-readable JSON formatting
+- **CON-004**: The repository MUST maintain backward compatibility with existing semantic model formats
+- **CON-005**: Maximum entity name length is limited to 128 characters per database restrictions
 
 ### Guidelines
 
@@ -186,144 +184,73 @@ public interface ISemanticModel
       // Visitor Pattern Support
     void Accept(ISemanticModelVisitor visitor);
 }
+
+/// <summary>
+/// Defines the contract for semantic model entities with persistence capabilities.
+/// </summary>
+public interface ISemanticModelEntity
+{
+    string Schema { get; set; }
+    string Name { get; set; }
+    string? Description { get; set; }
+    string? SemanticDescription { get; set; }
+    DateTime? SemanticDescriptionLastUpdate { get; set; }
+    bool NotUsed { get; set; }
+    string? NotUsedReason { get; set; }
+    
+    // Persistence Operations
+    Task SaveModelAsync(DirectoryInfo folderPath);
+    Task LoadModelAsync(DirectoryInfo folderPath);
+    FileInfo GetModelEntityFilename();
+    DirectoryInfo GetModelPath();
+    void SetSemanticDescription(string semanticDescription);
+    
+    // Visitor Pattern Support
+    void Accept(ISemanticModelVisitor visitor);
+}
 ```
 
-### Lazy Loading and Change Tracking Interfaces
+### Advanced Repository Interfaces
 
 ```csharp
-/// <summary>
-/// Defines the contract for lazy loading behavior in semantic model entities.
-/// </summary>
-public interface ILazyLoadable
-{
-    /// <summary>
-    /// Gets a value indicating whether the entity has been fully loaded from storage.
-    /// </summary>
-    bool IsLoaded { get; }
-    
-    /// <summary>
-    /// Forces the lazy loading of the entity if not already loaded.
-    /// </summary>
-    Task LoadAsync();
-    
-    /// <summary>
-    /// Gets a value indicating whether the entity is currently being loaded.
-    /// </summary>
-    bool IsLoading { get; }
-}
-
 /// <summary>
 /// Defines the contract for change tracking in semantic model entities.
 /// </summary>
 public interface ITrackable
 {
-    /// <summary>
-    /// Gets a value indicating whether the entity has been modified since last save.
-    /// </summary>
-    bool IsDirty { get; }
-    
-    /// <summary>
-    /// Gets the original values of the entity before modifications.
-    /// </summary>
-    IDictionary<string, object?> OriginalValues { get; }
-    
-    /// <summary>
-    /// Gets the current values of the entity.
-    /// </summary>
-    IDictionary<string, object?> CurrentValues { get; }
-    
-    /// <summary>
-    /// Marks the entity as clean (not modified).
-    /// </summary>
-    void MarkAsClean();
-    
-    /// <summary>
-    /// Marks the entity as dirty (modified).
-    /// </summary>
-    void MarkAsDirty();
-    
-    /// <summary>
-    /// Gets the specific properties that have been modified.
-    /// </summary>
-    IEnumerable<string> GetModifiedProperties();
+    bool IsModified { get; }
+    bool IsNew { get; }
+    bool IsDeleted { get; }
+    void MarkAsModified();
+    void MarkAsNew();
+    void MarkAsDeleted();
+    void ResetChangeTracking();
+    DateTime LastModified { get; set; }
 }
 
 /// <summary>
-/// Combines lazy loading and change tracking capabilities.
+/// Defines the contract for lazy-loadable semantic model entities.
 /// </summary>
-public interface ISemanticModelEntity : ILazyLoadable, ITrackable
+public interface ILazyLoadable<T> where T : ISemanticModelEntity
 {
-    /// <summary>
-    /// Gets the unique identifier for the entity.
-    /// </summary>
-    string EntityId { get; }
-    
-    /// <summary>
-    /// Gets the entity type for tracking purposes.
-    /// </summary>
-    string EntityType { get; }
-    
-    /// <summary>
-    /// Gets the timestamp when the entity was last modified.
-    /// </summary>
-    DateTimeOffset LastModified { get; }
+    bool IsLoaded { get; }
+    Task<T> LoadAsync();
+    void Unload();
 }
 
 /// <summary>
-/// Defines the contract for a change tracker that monitors entity modifications.
+/// Defines the contract for unit of work pattern implementation.
 /// </summary>
-public interface IChangeTracker
+public interface ISemanticModelUnitOfWork : IDisposable
 {
-    /// <summary>
-    /// Starts tracking changes for the specified entity.
-    /// </summary>
-    void StartTracking<T>(T entity) where T : ITrackable;
+    ISemanticModelRepository SemanticModels { get; }
+    ISemanticEntityRepository<SemanticModelTable> Tables { get; }
+    ISemanticEntityRepository<SemanticModelView> Views { get; }
+    ISemanticEntityRepository<SemanticModelStoredProcedure> StoredProcedures { get; }
     
-    /// <summary>
-    /// Stops tracking changes for the specified entity.
-    /// </summary>
-    void StopTracking<T>(T entity) where T : ITrackable;
-    
-    /// <summary>
-    /// Gets all entities that have been modified.
-    /// </summary>
-    IEnumerable<ITrackable> GetModifiedEntities();
-    
-    /// <summary>
-    /// Gets all entities of a specific type that have been modified.
-    /// </summary>
-    IEnumerable<T> GetModifiedEntities<T>() where T : ITrackable;
-    
-    /// <summary>
-    /// Accepts all changes and marks all tracked entities as clean.
-    /// </summary>
-    void AcceptAllChanges();
-    
-    /// <summary>
-    /// Rejects all changes and reverts all tracked entities to their original state.
-    /// </summary>
-    void RejectAllChanges();
-}
-
-/// <summary>
-/// Defines the contract for lazy loading services.
-/// </summary>
-public interface ILazyLoader
-{
-    /// <summary>
-    /// Loads the specified entity asynchronously.
-    /// </summary>
-    Task LoadAsync<T>(T entity) where T : ILazyLoadable;
-    
-    /// <summary>
-    /// Loads the specified property of an entity asynchronously.
-    /// </summary>
-    Task LoadPropertyAsync<T>(T entity, string propertyName) where T : ILazyLoadable;
-    
-    /// <summary>
-    /// Configures lazy loading behavior for a specific entity type.
-    /// </summary>
-    void Configure<T>(Func<T, Task> loadAction) where T : ILazyLoadable;
+    Task<int> SaveChangesAsync();
+    Task RollbackAsync();
+    void ClearChangeTracking();
 }
 ```
 
@@ -373,89 +300,84 @@ public interface IFileSemanticModelPersistenceStrategy : ISemanticModelPersisten
 
 ```csharp
 /// <summary>
-/// Represents database table metadata for schema extraction.
+/// Represents the hierarchical structure of a persisted semantic model.
 /// </summary>
-public sealed record TableInfo(string SchemaName, string TableName);
+public sealed record SemanticModelStructure
+{
+    public string Name { get; init; } = string.Empty;
+    public string Source { get; init; } = string.Empty;
+    public string? Description { get; init; }
+    public DateTime CreatedAt { get; init; }
+    public DateTime LastUpdated { get; init; }
+    public List<EntityReference> Tables { get; init; } = [];
+    public List<EntityReference> Views { get; init; } = [];
+    public List<EntityReference> StoredProcedures { get; init; } = [];
+}
 
 /// <summary>
-/// Represents database view metadata for schema extraction.
+/// Represents a reference to a semantic model entity in the persistence layer.
 /// </summary>
-public sealed record ViewInfo(string SchemaName, string ViewName);
+public sealed record EntityReference
+{
+    public string Schema { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
+    public string RelativePath { get; init; } = string.Empty;
+    public DateTime LastModified { get; init; }
+    public bool IsLoaded { get; init; }
+}
 
 /// <summary>
-/// Represents stored procedure metadata for schema extraction.
+/// Represents the persistence configuration for semantic models.
 /// </summary>
-public sealed record StoredProcedureInfo(
-    string SchemaName, 
-    string ProcedureName, 
-    string Type, 
-    string? Parameters, 
-    string Definition);
-
-/// <summary>
-/// Represents reference/foreign key relationship metadata.
-/// </summary>
-public sealed record ReferenceInfo(
-    string SchemaName,
-    string TableName,
-    string ColumnName,
-    string ReferencedTableName,
-    string ReferencedColumnName);
+public sealed record SemanticModelPersistenceOptions
+{
+    public string BasePath { get; init; } = string.Empty;
+    public bool EnableLazyLoading { get; init; } = true;
+    public bool EnableChangeTracking { get; init; } = true;
+    public int MaxDegreeOfParallelism { get; init; } = Environment.ProcessorCount;
+    public TimeSpan CacheExpiration { get; init; } = TimeSpan.FromMinutes(30);
+    public bool UseCompression { get; init; } = false;
+    public JsonSerializerOptions JsonOptions { get; init; } = new() { WriteIndented = true };
+}
 ```
 
 ## 5. Rationale & Context
 
 ### Repository Pattern Selection
 
-The repository pattern was chosen to provide a clean separation between the domain logic and data access logic. This abstraction enables:
+The repository pattern was chosen to provide a clean abstraction layer between the domain logic and data access concerns. This pattern enables:
 
-1. **Testability**: Repository interfaces can be easily mocked for unit testing
-2. **Flexibility**: Multiple persistence strategies can be implemented without changing business logic
-3. **Maintainability**: Data access concerns are centralized and can be modified independently
-4. **Future Extensibility**: Additional persistence mechanisms (database, cloud storage) can be added seamlessly
+1. **Testability**: Easy mocking of data access operations for unit testing
+2. **Flexibility**: Support for multiple persistence strategies (file, database, cloud)
+3. **Maintainability**: Clear separation of concerns between business logic and data access
+4. **Extensibility**: Easy addition of new persistence mechanisms without affecting existing code
 
-### File-Based Persistence Strategy
+### File-Based Persistence Structure
 
-The initial implementation uses file-based persistence because:
+The hierarchical file structure with separate entity files provides:
 
-1. **Simplicity**: No additional database infrastructure required
-2. **Version Control**: Semantic models can be tracked in source control systems
-3. **Human Readability**: JSON format enables manual inspection and debugging
-4. **Portability**: Models can be easily shared between environments
+1. **Human Readability**: Individual JSON files can be examined and edited manually
+2. **Version Control Compatibility**: Changes to individual entities create focused diffs
+3. **Lazy Loading Support**: Entities can be loaded on-demand to optimize memory usage
+4. **Parallel Processing**: Multiple entities can be processed concurrently
 
-### Hierarchical Storage Structure
+### JSON Serialization Strategy
 
-The semantic model is persisted in a hierarchical directory structure:
+JSON was selected as the primary serialization format because:
 
-```text
-semantic-model/
-├── semanticmodel.json          # Main model metadata
-├── tables/                     # Table entities
-│   ├── schema.table1.json
-│   └── schema.table2.json
-├── views/                      # View entities
-│   ├── schema.view1.json
-│   └── schema.view2.json
-└── storedprocedures/          # Stored procedure entities
-    ├── schema.proc1.json
-    └── schema.proc2.json
-```
+1. **AI Compatibility**: Generative AI models work effectively with JSON structures
+2. **Human Readability**: Developers can easily inspect and modify semantic models
+3. **Language Agnostic**: JSON can be consumed by various programming languages
+4. **Tooling Support**: Extensive ecosystem of JSON processing tools available
 
-This structure provides:
+### Change Tracking Implementation
 
-- **Scalability**: Large schemas don't result in monolithic files
-- **Granular Updates**: Individual entities can be modified without affecting others
-- **Parallel Processing**: Multiple entities can be processed concurrently
-- **Organization**: Clear separation of different entity types
+Change tracking mechanisms are essential for:
 
-### Asynchronous Operations
-
-All I/O operations are asynchronous to:
-
-- **Improve Responsiveness**: Prevent UI blocking during long-running operations
-- **Enable Parallelism**: Multiple database queries can execute concurrently
-- **Optimize Resource Usage**: Thread pool threads are not blocked during I/O waits
-- **Support Scalability**: Better handling of concurrent requests in server scenarios
+1. **Performance Optimization**: Only modified entities need to be persisted
+2. **Conflict Resolution**: Detecting concurrent modifications to prevent data loss
+3. **Audit Trail**: Maintaining history of changes for debugging and compliance
+4. **Selective Synchronization**: Optimizing network operations in distributed scenarios
 
 ## 6. Examples & Edge Cases
 
@@ -494,6 +416,53 @@ foreach (var table in tables.Values)
 }
 ```
 
+### Lazy Loading Implementation
+
+```csharp
+public class LazySemanticModelTable : ILazyLoadable<SemanticModelTable>
+{
+    private SemanticModelTable? _table;
+    private readonly string _entityId;
+    private readonly ISemanticModelPersistenceStrategy _persistenceStrategy;
+    private readonly DirectoryInfo _modelPath;
+
+    public bool IsLoaded => _table != null;
+
+    public async Task<SemanticModelTable> LoadAsync()
+    {
+        if (_table == null)
+        {
+            _table = await _persistenceStrategy.LoadEntityAsync<SemanticModelTable>(_entityId, _modelPath.FullName);
+        }
+        return _table;
+    }
+
+    public void Unload()
+    {
+        _table = null;
+    }
+}
+```
+
+### Unit of Work Pattern Implementation
+
+```csharp
+// Begin unit of work
+using var unitOfWork = serviceProvider.GetRequiredService<ISemanticModelUnitOfWork>();
+
+// Modify entities
+var table = await unitOfWork.Tables.GetByIdAsync("Sales.Customer");
+table.Description = "Updated customer information";
+unitOfWork.Tables.Update(table);
+
+// Add new entity
+var newView = new SemanticModelView("Sales", "CustomerSummary");
+unitOfWork.Views.Add(newView);
+
+// Persist all changes atomically
+await unitOfWork.SaveChangesAsync();
+```
+
 ### Error Handling Edge Cases
 
 ```csharp
@@ -523,177 +492,122 @@ catch (JsonException ex)
 }
 ```
 
-### Parallel Processing Configuration
+### Concurrent Access Handling
 
 ```csharp
-// Configure parallelism for large schemas
-var parallelOptions = new ParallelOptions
+public class ThreadSafeSemanticModelRepository
 {
-    MaxDegreeOfParallelism = Environment.ProcessorCount / 2 // Conservative approach
-};
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly ConcurrentDictionary<string, DateTime> _lastModified = new();
 
-// Extract tables in parallel
-await Parallel.ForEachAsync(tableInfos, parallelOptions, async (table, ct) =>
-{    var semanticTable = await schemaRepository.CreateSemanticModelTableAsync(table);
-    semanticModel.AddTable(semanticTable);
-});
-```
-
-### Lazy Loading Implementation Example
-
-```csharp
-// Create a semantic model with lazy loading enabled
-var semanticModel = await semanticModelProvider.LoadSemanticModelAsync(modelPath);
-
-// Tables are loaded as proxies - actual data is not loaded yet
-var salesTable = semanticModel.FindTable("Sales", "Orders");
-
-// Accessing columns will trigger lazy loading
-var columns = salesTable.Columns; // Data is loaded on first access
-
-// Check if entity has been loaded
-if (salesTable is ILazyLoadable lazyTable && !lazyTable.IsLoaded)
-{
-    await lazyTable.LoadAsync(); // Explicitly load if needed
-}
-```
-
-### Dirty Tracking and Selective Persistence Example
-
-```csharp
-// Get change tracker service
-var changeTracker = serviceProvider.GetRequiredService<IChangeTracker>();
-
-// Load semantic model with change tracking
-var semanticModel = await semanticModelProvider.LoadSemanticModelAsync(modelPath);
-
-// Modify an entity
-var table = semanticModel.FindTable("Sales", "Customers");
-if (table is ITrackable trackableTable)
-{
-    changeTracker.StartTracking(trackableTable);
-    table.Description = "Updated customer information table";
-    // Entity is automatically marked as dirty
-}
-
-// Save only modified entities
-var modifiedEntities = changeTracker.GetModifiedEntities();
-if (modifiedEntities.Any())
-{
-    var persistenceStrategy = serviceProvider.GetRequiredService<IFileSemanticModelPersistenceStrategy>();
-    await persistenceStrategy.SaveModifiedEntitiesAsync(modifiedEntities, modelPath);
-    changeTracker.AcceptAllChanges(); // Mark all as clean
-}
-```
-
-### Smart Loading Based on Access Patterns
-
-```csharp
-// Configure lazy loader for optimized loading
-var lazyLoader = serviceProvider.GetRequiredService<ILazyLoader>();
-
-// Configure table loading to include frequently accessed properties
-lazyLoader.Configure<SemanticModelTable>(async table =>
-{
-    // Load table with columns and indexes in a single operation
-    var tableInfo = new TableInfo(table.Schema, table.Name);
-    table.Columns.AddRange(await schemaRepository.GetColumnsForTableAsync(tableInfo));
-    table.Indexes.AddRange(await schemaRepository.GetIndexesForTableAsync(tableInfo));
-});
-
-// Access patterns are optimized based on configuration
-var table = semanticModel.FindTable("Sales", "Orders");
-await table.LoadAsync(); // Loads columns and indexes together
-```
-
-### Batch Operations with Dirty Tracking
-
-```csharp
-// Perform bulk modifications
-var changeTracker = serviceProvider.GetRequiredService<IChangeTracker>();
-
-foreach (var table in semanticModel.Tables.Where(t => t.Schema == "Sales"))
-{
-    if (table is ITrackable trackable)
+    public async Task<SemanticModel> LoadWithConcurrencyCheckAsync(DirectoryInfo modelPath)
     {
-        changeTracker.StartTracking(trackable);
-        table.Description = $"Sales schema table: {table.Name}";
+        await _semaphore.WaitAsync();
+        try
+        {
+            var currentModified = Directory.GetLastWriteTime(modelPath.FullName);
+            var key = modelPath.FullName;
+            
+            if (_lastModified.TryGetValue(key, out var lastKnown) && currentModified > lastKnown)
+            {
+                throw new InvalidOperationException("Model has been modified by another process");
+            }
+            
+            var model = await LoadModelInternalAsync(modelPath);
+            _lastModified[key] = currentModified;
+            return model;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }
-
-// Get only modified tables for persistence
-var modifiedTables = changeTracker.GetModifiedEntities<SemanticModelTable>();
-logger.LogInformation("Saving {Count} modified tables", modifiedTables.Count());
-
-// Efficient batch save operation
-await persistenceStrategy.SaveModifiedEntitiesAsync(modifiedTables, modelPath);
 ```
 
-### Memory Optimization with Lazy Loading
+### Performance Optimization Patterns
 
 ```csharp
-// Load semantic model metadata only
-var semanticModel = await semanticModelProvider.LoadSemanticModelAsync(modelPath);
-logger.LogInformation("Loaded model with {TableCount} tables (proxies)", semanticModel.Tables.Count);
+// Batch loading with parallel processing
+public async Task<IEnumerable<SemanticModelTable>> LoadTablesAsync(
+    IEnumerable<string> tableIds, 
+    DirectoryInfo modelPath)
+{
+    var parallelOptions = new ParallelOptions
+    {
+        MaxDegreeOfParallelism = Environment.ProcessorCount
+    };
 
-// Tables are proxies - minimal memory usage
-var totalMemoryBefore = GC.GetTotalMemory(false);
+    var tables = new ConcurrentBag<SemanticModelTable>();
+    
+    await Parallel.ForEachAsync(tableIds, parallelOptions, async (tableId, ct) =>
+    {
+        var table = await LoadEntityAsync<SemanticModelTable>(tableId, modelPath.FullName);
+        tables.Add(table);
+    });
 
-// Access specific table - only this table's data is loaded
-var ordersTable = semanticModel.FindTable("Sales", "Orders");
-var columnCount = ordersTable.Columns.Count; // Triggers loading for this table only
+    return tables;
+}
 
-var totalMemoryAfter = GC.GetTotalMemory(false);
-logger.LogInformation("Memory increased by {MemoryDelta} bytes for single table", 
-    totalMemoryAfter - totalMemoryBefore);
+// Memory-efficient streaming for large models
+public async IAsyncEnumerable<SemanticModelTable> StreamTablesAsync(DirectoryInfo modelPath)
+{
+    var tableDirectory = new DirectoryInfo(Path.Combine(modelPath.FullName, "tables"));
+    var tableFiles = tableDirectory.GetFiles("*.json");
+
+    foreach (var file in tableFiles)
+    {
+        using var stream = file.OpenRead();
+        var table = await JsonSerializer.DeserializeAsync<SemanticModelTable>(stream);
+        if (table != null)
+        {
+            yield return table;
+        }
+    }
+}
 ```
 
 ## 7. Validation Criteria
 
 ### Functional Validation
 
-1. **Model Extraction**: Semantic model successfully extracts all tables, views, and stored procedures from a test database
-2. **Persistence**: Semantic model can be saved to and loaded from the file system without data loss
-3. **Entity Relationships**: Foreign key relationships are correctly captured and persisted
-4. **Incremental Updates**: Individual entities can be updated without affecting the entire model
-5. **Error Recovery**: System gracefully handles corrupted files and missing directories
-6. **Lazy Loading**: Entities are loaded on-demand and memory usage remains minimal until access
-7. **Dirty Tracking**: Only modified entities are identified and persisted during save operations
-8. **Proxy Behavior**: Lazy-loaded entities behave identically to fully-loaded entities from a consumer perspective
+- **VAL-001**: Repository MUST successfully persist and retrieve semantic models without data loss
+- **VAL-002**: All async operations MUST complete within specified performance thresholds
+- **VAL-003**: Concurrent access scenarios MUST not result in data corruption
+- **VAL-004**: Lazy loading MUST reduce initial memory footprint by at least 70%
+- **VAL-005**: Change tracking MUST accurately identify modified entities with 100% precision
 
 ### Performance Validation
 
-1. **Large Schema Handling**: System can process databases with 1000+ tables within acceptable time limits
-2. **Memory Usage**: Memory consumption remains stable during processing of large schemas
-3. **Parallel Processing**: Multi-threaded operations complete faster than sequential processing
-4. **File I/O Efficiency**: Persistence operations complete within expected time boundaries
-5. **Lazy Loading Performance**: Initial model loading time is significantly reduced compared to eager loading
-6. **Selective Persistence**: Save operations process only dirty entities, reducing I/O overhead
-7. **Memory Efficiency**: Memory usage scales with accessed entities, not total entity count
-
-### Quality Validation
-
-1. **Thread Safety**: Concurrent operations do not cause data corruption or deadlocks
-2. **Resource Cleanup**: All file handles and database connections are properly disposed
-3. **Logging Coverage**: All significant operations and errors are properly logged
-4. **Exception Handling**: All exceptions are caught and handled appropriately
-5. **Change Tracking Accuracy**: Dirty detection correctly identifies all modified properties and entities
-6. **Lazy Loading Transparency**: Consumers cannot distinguish between lazy-loaded and eagerly-loaded entities
-7. **State Consistency**: Entity state remains consistent across lazy loading and change tracking operations
+- **VAL-006**: Model extraction for 100 tables MUST complete within 30 seconds
+- **VAL-007**: Individual entity loading MUST complete within 500 milliseconds
+- **VAL-008**: Memory usage MUST not exceed 2GB for models with 10,000 entities
+- **VAL-009**: Parallel operations MUST achieve at least 80% CPU utilization
+- **VAL-010**: File I/O operations MUST be optimized to minimize disk seeks
 
 ### Security Validation
 
-1. **Path Validation**: File paths are validated to prevent directory traversal attacks
-2. **Connection String Security**: Database connection information is handled securely
-3. **File Permissions**: Created files have appropriate access permissions
-4. **Input Sanitization**: All user inputs are properly validated and sanitized
+- **VAL-011**: Path traversal attacks MUST be prevented through input validation
+- **VAL-012**: Entity name sanitization MUST prevent file system injection
+- **VAL-013**: JSON deserialization MUST be protected against malicious payloads
+- **VAL-014**: Access control mechanisms MUST prevent unauthorized modifications
+- **VAL-015**: Sensitive data MUST not be logged or exposed in error messages
+
+### Integration Validation
+
+- **VAL-016**: Repository MUST integrate seamlessly with dependency injection container
+- **VAL-017**: Error handling MUST provide meaningful diagnostics for troubleshooting
+- **VAL-018**: Logging output MUST follow structured logging patterns
+- **VAL-019**: Configuration changes MUST not require application restart
+- **VAL-020**: Backward compatibility MUST be maintained for existing semantic models
 
 ## 8. Related Specifications / Further Reading
 
-- [Repository Pattern Documentation](https://martinfowler.com/eaaCatalog/repository.html) - Martin Fowler's Enterprise Application Architecture Catalog
-- [.NET Dependency Injection](https://docs.microsoft.com/en-us/dotnet/core/extensions/dependency-injection) - Microsoft Documentation
-- [Async/Await Best Practices](https://docs.microsoft.com/en-us/archive/msdn-magazine/2013/march/async-await-best-practices-in-asynchronous-programming) - MSDN Magazine
-- [JSON Serialization in .NET](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview) - Microsoft Documentation
-- [Database Schema Documentation](../docs/gaidbexp/README.md) - GenAI Database Explorer Documentation
-- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID) - Object-oriented design principles
-- [Unit of Work Pattern](https://martinfowler.com/eaaCatalog/unitOfWork.html) - Enterprise Application Architecture Pattern
+- [Infrastructure Deployment Bicep AVM Specification](./infrastructure-deployment-bicep-avm.md)
+- [Microsoft .NET Application Architecture Guides](https://docs.microsoft.com/en-us/dotnet/architecture/)
+- [Repository Pattern Documentation](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design)
+- [Azure Well-Architected Framework](https://docs.microsoft.com/en-us/azure/architecture/framework/)
+- [Entity Framework Core Change Tracking](https://docs.microsoft.com/en-us/ef/core/change-tracking/)
+- [System.Text.Json Serialization Guide](https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-overview)
+- [Async Programming Best Practices](https://docs.microsoft.com/en-us/dotnet/csharp/async)
+- [SOLID Principles in C#](https://docs.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/architectural-principles)

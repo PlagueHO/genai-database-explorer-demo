@@ -46,6 +46,16 @@
             "env": {
                 "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
             }
+        },
+        "giphy": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-server-giphy"
+            ],
+            "env": {
+                "GIPHY_API_KEY": "${input:giphy_api_key}"
+            }
         }
     },
     "inputs": [
@@ -59,7 +69,13 @@
             "type": "promptString",
             "description": "GitHub Personal Access Token",
             "password": true
-        }        
+        },
+        {
+            "id": "giphy_api_key",
+            "type": "promptString",
+            "description": "Giphy API Key",
+            "password": true
+        }
     ]
 }
 ```
@@ -68,19 +84,25 @@
 
 ### Create a specification for the Semantic Model Persistence Repository
 
-```markdown
+Switch to /plan
+
+```md
+
+```
+
+```md
 /create_spec SpecPurpose:Persisting the Semantic Model for a Database Schema for the Generative AI database explorer using a repository pattern. Define the specification requirements based on the current implementation in the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Ensure you refer to the relevant interfaces.
 ```
 
 ### Identify performance issues and suggest improvements
 
-```markdown
+```md
 What performance issues might be faced with the current implementation of the specification of #file:data-semantic-model-persistence-repository.md ? Put the answer in a table and include suggestions for improving performance of the specification.
 ```
 
 ### Add Lazy Loading and Dirty Tracking Requirements to the specification
 
-```markdown
+```md
 I'd like to implement Lazy loading so that schema items are only completely loaded when they are acccessed and marking schema items as dirty, so that only changed items need to be saved. Please update the #file:data-semantic-model-persistence-repository.md specification with this requirement.
 ```
 
