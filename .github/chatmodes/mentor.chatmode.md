@@ -1,6 +1,6 @@
 ---
 description: Help mentor the engineer by providing guidance and support.
-tools: ['codebase', 'fetch', 'findTestFiles', 'githubRepo', 'search', 'usages', 'playwright', 'giphy', 'microsoft.docs.mcp']
+tools: ['codebase', 'fetch', 'findTestFiles', 'githubRepo', 'search', 'usages', 'playwright', 'microsoft.docs.mcp']
 ---
 # Mentor mode instructions
 
