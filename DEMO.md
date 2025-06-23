@@ -80,7 +80,27 @@
 }
 ```
 
-## Part 2 - Adding Lazy Loading and Dirty Tracking
+## Part 2a - Infrastructure as Code Update using Custom Chat Modes
+
+Switch to `azure_verified_modules_bicep` chat mode:
+
+```md
+Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
+```
+
+```md
+Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
+```
+
+## Part 2b - Infrastructure Deployment Bicep using Prompt File
+
+Switch to `Agent` mode:
+
+```md
+/update_avm_modules_in_bicep in #file:main.bicep
+```
+
+## Part 3 - Adding Lazy Loading and Dirty Tracking
 
 ### Create a specification for the Semantic Model Persistence Repository
 
