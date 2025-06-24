@@ -1,0 +1,62 @@
+[start]
+
+Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
+
+[end]
+
+Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
+
+[end]
+
+/update_avm_modules_in_bicep in #file:main.bicep
+
+[end]
+
+Review the #file:data-semantic-model-persistence-repository.md making any note of performance problems, especially as we increase the number of entities? List these as a table containing:[enter]
+- Issue description[enter]
+- Recommendation to resolve[enter]  
+- Priority (High, Medium, Low)[enter]
+- Difficulty to implement (High, Medium, Low)[enter]
+- Benefit of resolving the issue[enter]
+- Which engineering discipline recommended it[enter]
+- Include diagrams if appropriate to demonstrating the issue
+
+[end]
+
+Hey, what janitorial work is needed for the semantic repository?
+
+[end]
+
+/create_spec SpecPurpose:Persisting the Semantic Model for a Database Schema for the Generative AI database explorer using a repository pattern. Define the specification requirements based on the current implementation in the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Ensure you refer to the relevant interfaces.
+
+[end]
+
+What performance issues might be faced with the current implementation of the specification of #file:data-semantic-model-persistence-repository.md ? Put the answer in a table and include suggestions for improving performance of the specification.
+
+[end]
+
+I'd like to implement Lazy loading so that schema items are only completely loaded when they are accessed and marking schema items as dirty, so that only changed items need to be saved. Please update the #file:data-semantic-model-persistence-repository.md specification with this requirement.
+
+[end]
+
+Compare the #file:data-semantic-model-persistence-repository.md specification with the current implementation of the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs and identify what is not implemented.
+
+[end]
+
+/create_github_issue_feature_from_spec based on the features that are not currently implemented in the SpecFile:#file:data-semantic-model-persistence-repository.md . Identify the tasks that need to be included based on what is missing from #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Use the #create_issue tool to create the issue in the GitHub repository using the #file:feature_request.yml template.
+
+[end]
+
+Go ahead and create that as a GitHub issue using the #file:feature_request.yml issue template
+
+[end]
+
+Check that the #file:main.bicep meets the specifications outlined in #file:infrastructure-deployment-bicep-avm.md. If it doesn't meet any of the requirements, list them in a table and identify why they don't meet the requirement and how to resolve it.
+
+[end]
+
+Add a requirement to the #file:infrastructure-deployment-bicep-avm.md that requires that the main.bicepparam reads all values from environment variables named appropriately for az developer CLI and formatted upper case with underscore separating names. E.g.
+param environmentName = readEnvironmentVariable('AZURE_ENV_NAME', 'azdtemp')
+param location = readEnvironmentVariable('AZURE_LOCATION', 'EastUS2')
+
+[end]
