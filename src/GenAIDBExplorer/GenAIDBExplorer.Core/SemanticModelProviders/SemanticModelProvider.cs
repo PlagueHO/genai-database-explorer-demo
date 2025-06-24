@@ -68,6 +68,7 @@ public sealed class SemanticModelProvider(
 
     /// <summary>
     /// Extracts the tables from the database and adds them to the semantic model asynchronously.
+    /// Uses batch operations to minimize database round trips for improved performance.
     /// </summary>
     /// <param name="semanticModel">The semantic model to which the tables will be added.</param>
     /// <param name="parallelOptions">The parallel options for configuring the degree of parallelism.</param>
@@ -76,19 +77,32 @@ public sealed class SemanticModelProvider(
     {
         // Get the tables from the database
         var tablesDictionary = await _schemaRepository.GetTablesAsync(_project.Settings.Database.Schema).ConfigureAwait(false);
-        var semanticModelTables = new ConcurrentBag<SemanticModelTable>();
-
-        // Construct the semantic model tables
-        await Parallel.ForEachAsync(tablesDictionary.Values, parallelOptions, async (table, cancellationToken) =>
+        
+        if (!tablesDictionary.Any())
         {
-            _logger.LogInformation("{Message} [{SchemaName}].[{TableName}]", _resourceManagerLogMessages.GetString("AddingTableToSemanticModel"), table.SchemaName, table.TableName);
+            _logger.LogInformation("No tables found in schema '{Schema}'", _project.Settings.Database.Schema ?? "default");
+            return;
+        }
 
-            var semanticModelTable = await _schemaRepository.CreateSemanticModelTableAsync(table).ConfigureAwait(false);
-            semanticModelTables.Add(semanticModelTable);
-        });
+        var tablesList = tablesDictionary.Values.ToList();
+        
+        _logger.LogInformation("Extracting {TableCount} tables using batch operations", tablesList.Count);
+
+        // Use batch operations to create semantic model tables efficiently
+        var semanticModelTables = await _schemaRepository.CreateSemanticModelTablesAsync(tablesList).ConfigureAwait(false);
+
+        // Log the tables that were added
+        foreach (var table in semanticModelTables)
+        {
+            _logger.LogInformation("{Message} [{SchemaName}].[{TableName}]", 
+                _resourceManagerLogMessages.GetString("AddingTableToSemanticModel"), 
+                table.Schema, table.Name);
+        }
 
         // Add the tables to the semantic model
         semanticModel.Tables.AddRange(semanticModelTables);
+        
+        _logger.LogInformation("Successfully added {TableCount} tables to semantic model", semanticModelTables.Count);
     }
 
     /// <summary>
