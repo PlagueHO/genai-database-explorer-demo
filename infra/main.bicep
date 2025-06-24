@@ -68,7 +68,7 @@ var aiSearchName = '${abbrs.aiSearchSearchServices}${environmentName}'
 var openAiModelDeployments = openAiModels
 
 // The application resources that are deployed into the application resource group
-module rg 'br/public:avm/res/resources/resource-group:0.4.0' = {
+module rg 'br/public:avm/res/resources/resource-group:0.4.1' = {
   name: 'resourceGroup'
   params: {
     name: resourceGroupName
