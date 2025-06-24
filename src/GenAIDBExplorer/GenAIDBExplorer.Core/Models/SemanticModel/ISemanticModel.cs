@@ -5,7 +5,7 @@ namespace GenAIDBExplorer.Core.Models.SemanticModel;
 /// <summary>
 /// Represents a semantic model.
 /// </summary>
-public interface ISemanticModel
+public interface ISemanticModel : IStreamableSemanticModel
 {
     string Name { get; set; }
     string Source { get; set; }
