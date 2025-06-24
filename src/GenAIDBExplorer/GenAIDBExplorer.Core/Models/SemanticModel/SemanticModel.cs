@@ -127,13 +127,57 @@ public sealed class SemanticModel(
             }
         }
 
+        // Rebuild indexes after loading all data
+        semanticModel.RebuildIndexes();
+
         return semanticModel;
     }
 
     /// <summary>
-    /// Gets the tables in the semantic model.
+    /// Rebuilds all internal indexes after loading data from files or deserialization
     /// </summary>
-    public List<SemanticModelTable> Tables { get; set; } = [];
+    private void RebuildIndexes()
+    {
+        RebuildTablesIndex();
+        RebuildViewsIndex();
+        RebuildStoredProceduresIndex();
+    }
+
+    /// <summary>
+    /// Dictionary for O(1) table lookups using composite key "schema.tablename"
+    /// </summary>
+    private readonly Dictionary<string, SemanticModelTable> _tableIndex = new();
+
+    /// <summary>
+    /// Backing field for Tables property
+    /// </summary>
+    private List<SemanticModelTable> _tables = [];
+
+    /// <summary>
+    /// Gets or sets the tables in the semantic model.
+    /// </summary>
+    public List<SemanticModelTable> Tables 
+    { 
+        get => _tables;
+        set 
+        {
+            _tables = value;
+            RebuildTablesIndex();
+        }
+    }
+
+    /// <summary>
+    /// Rebuilds the tables index
+    /// </summary>
+    private void RebuildTablesIndex()
+    {
+        _tableIndex.Clear();
+        foreach (var table in _tables)
+        {
+            var key = GenerateCompositeKey(table.Schema, table.Name);
+            _tableIndex[key] = table;
+        }
+    }
 
     /// <summary>
     /// Adds a table to the semantic model.
@@ -142,6 +186,8 @@ public sealed class SemanticModel(
     public void AddTable(SemanticModelTable table)
     {
         Tables.Add(table);
+        var key = GenerateCompositeKey(table.Schema, table.Name);
+        _tableIndex[key] = table;
     }
 
     /// <summary>
@@ -151,6 +197,8 @@ public sealed class SemanticModel(
     /// <returns>True if the table was removed; otherwise, false.</returns>
     public bool RemoveTable(SemanticModelTable table)
     {
+        var key = GenerateCompositeKey(table.Schema, table.Name);
+        _tableIndex.Remove(key);
         return Tables.Remove(table);
     }
 
@@ -162,7 +210,9 @@ public sealed class SemanticModel(
     /// <returns>The table if found; otherwise, null.</returns>
     public SemanticModelTable? FindTable(string schemaName, string tableName)
     {
-        return Tables.FirstOrDefault(t => t.Schema == schemaName && t.Name == tableName);
+        var key = GenerateCompositeKey(schemaName, tableName);
+        _tableIndex.TryGetValue(key, out var table);
+        return table;
     }
 
     /// <summary>
@@ -176,8 +226,8 @@ public sealed class SemanticModel(
 
         foreach (var tableInfo in tableList.Tables)
         {
-            var matchingTable = Tables.FirstOrDefault(t => t.Schema == tableInfo.SchemaName && t.Name == tableInfo.TableName);
-            if (matchingTable != null)
+            var key = GenerateCompositeKey(tableInfo.SchemaName, tableInfo.TableName);
+            if (_tableIndex.TryGetValue(key, out var matchingTable))
             {
                 selectedTables.Add(matchingTable);
             }
@@ -187,9 +237,40 @@ public sealed class SemanticModel(
     }
 
     /// <summary>
-    /// Gets the views in the semantic model.
+    /// Dictionary for O(1) view lookups using composite key "schema.viewname"
     /// </summary>
-    public List<SemanticModelView> Views { get; set; } = [];
+    private readonly Dictionary<string, SemanticModelView> _viewIndex = new();
+
+    /// <summary>
+    /// Backing field for Views property
+    /// </summary>
+    private List<SemanticModelView> _views = [];
+
+    /// <summary>
+    /// Gets or sets the views in the semantic model.
+    /// </summary>
+    public List<SemanticModelView> Views 
+    { 
+        get => _views;
+        set 
+        {
+            _views = value;
+            RebuildViewsIndex();
+        }
+    }
+
+    /// <summary>
+    /// Rebuilds the views index
+    /// </summary>
+    private void RebuildViewsIndex()
+    {
+        _viewIndex.Clear();
+        foreach (var view in _views)
+        {
+            var key = GenerateCompositeKey(view.Schema, view.Name);
+            _viewIndex[key] = view;
+        }
+    }
 
     /// <summary>
     /// Adds a view to the semantic model.
@@ -198,6 +279,8 @@ public sealed class SemanticModel(
     public void AddView(SemanticModelView view)
     {
         Views.Add(view);
+        var key = GenerateCompositeKey(view.Schema, view.Name);
+        _viewIndex[key] = view;
     }
 
     /// <summary>
@@ -207,6 +290,8 @@ public sealed class SemanticModel(
     /// <returns>True if the view was removed; otherwise, false.</returns>
     public bool RemoveView(SemanticModelView view)
     {
+        var key = GenerateCompositeKey(view.Schema, view.Name);
+        _viewIndex.Remove(key);
         return Views.Remove(view);
     }
 
@@ -218,13 +303,57 @@ public sealed class SemanticModel(
     /// <returns>The view if found; otherwise, null.</returns></returns>
     public SemanticModelView? FindView(string schemaName, string viewName)
     {
-        return Views.FirstOrDefault(v => v.Schema == schemaName && v.Name == viewName);
+        var key = GenerateCompositeKey(schemaName, viewName);
+        _viewIndex.TryGetValue(key, out var view);
+        return view;
     }
 
     /// <summary>
-    /// Gets the stored procedures in the semantic model.
+    /// Dictionary for O(1) stored procedure lookups using composite key "schema.procedurename"
     /// </summary>
-    public List<SemanticModelStoredProcedure> StoredProcedures { get; set; } = [];
+    private readonly Dictionary<string, SemanticModelStoredProcedure> _storedProcedureIndex = new();
+
+    /// <summary>
+    /// Backing field for StoredProcedures property
+    /// </summary>
+    private List<SemanticModelStoredProcedure> _storedProcedures = [];
+
+    /// <summary>
+    /// Gets or sets the stored procedures in the semantic model.
+    /// </summary>
+    public List<SemanticModelStoredProcedure> StoredProcedures 
+    { 
+        get => _storedProcedures;
+        set 
+        {
+            _storedProcedures = value;
+            RebuildStoredProceduresIndex();
+        }
+    }
+
+    /// <summary>
+    /// Rebuilds the stored procedures index
+    /// </summary>
+    private void RebuildStoredProceduresIndex()
+    {
+        _storedProcedureIndex.Clear();
+        foreach (var storedProcedure in _storedProcedures)
+        {
+            var key = GenerateCompositeKey(storedProcedure.Schema, storedProcedure.Name);
+            _storedProcedureIndex[key] = storedProcedure;
+        }
+    }
+
+    /// <summary>
+    /// Generates a composite key for indexing using schema and name
+    /// </summary>
+    /// <param name="schema">The schema name</param>
+    /// <param name="name">The entity name</param>
+    /// <returns>Composite key in format "schema.name"</returns>
+    private static string GenerateCompositeKey(string schema, string name)
+    {
+        return $"{schema}.{name}";
+    }
 
     /// <summary>
     /// Adds a stored procedure to the semantic model.
@@ -233,6 +362,8 @@ public sealed class SemanticModel(
     public void AddStoredProcedure(SemanticModelStoredProcedure storedProcedure)
     {
         StoredProcedures.Add(storedProcedure);
+        var key = GenerateCompositeKey(storedProcedure.Schema, storedProcedure.Name);
+        _storedProcedureIndex[key] = storedProcedure;
     }
 
     /// <summary>
@@ -242,6 +373,8 @@ public sealed class SemanticModel(
     /// <returns>True if the stored procedure was removed; otherwise, false.</returns>
     public bool RemoveStoredProcedure(SemanticModelStoredProcedure storedProcedure)
     {
+        var key = GenerateCompositeKey(storedProcedure.Schema, storedProcedure.Name);
+        _storedProcedureIndex.Remove(key);
         return StoredProcedures.Remove(storedProcedure);
     }
 
@@ -253,7 +386,9 @@ public sealed class SemanticModel(
     /// <returns>The stored procedure if found; otherwise, null.</returns>
     public SemanticModelStoredProcedure? FindStoredProcedure(string schemaName, string storedProcedureName)
     {
-        return StoredProcedures.FirstOrDefault(sp => sp.Schema == schemaName && sp.Name == storedProcedureName);
+        var key = GenerateCompositeKey(schemaName, storedProcedureName);
+        _storedProcedureIndex.TryGetValue(key, out var storedProcedure);
+        return storedProcedure;
     }
 
     /// <summary>
