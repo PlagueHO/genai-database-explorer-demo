@@ -1,0 +1,41 @@
+{
+  "SettingsVersion": "1.0.0",
+  "Database": {
+    "Name": "SampleDatabase",
+    "Description": "Sample database with connection pooling configuration",
+    "ConnectionString": "Server=localhost;Database=SampleDB;Integrated Security=true;",
+    "Schema": "dbo",
+    "MaxDegreeOfParallelism": 4,
+    "MaxPoolSize": 100,
+    "MinPoolSize": 5,
+    "ConnectionTimeout": 30,
+    "CommandTimeout": 30,
+    "PoolingEnabled": true,
+    "MaxRetryAttempts": 3,
+    "RetryDelayMilliseconds": 1000,
+    "EnableHealthMonitoring": true,
+    "NotUsedTables": [
+      "^temp_.*",
+      "^backup_.*"
+    ],
+    "NotUsedColumns": [
+      ".*_deprecated$",
+      ".*_legacy$"
+    ],
+    "NotUsedViews": [
+      "^old_.*"
+    ],
+    "NotUsedStoredProcedures": [
+      "^sp_legacy_.*"
+    ]
+  },
+  "DataDictionary": {
+    // ... other settings
+  },
+  "SemanticModel": {
+    // ... other settings
+  },
+  "OpenAIService": {
+    // ... other settings
+  }
+}
