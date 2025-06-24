@@ -43,6 +43,32 @@ public sealed class SemanticModelProvider(
     }
 
     /// <inheritdoc/>
+    public async Task<ISemanticModelMetadata> LoadModelMetadataAsync(DirectoryInfo modelPath)
+    {
+        _logger.LogInformation("Loading semantic model metadata from '{ModelPath}'", modelPath);
+
+        var metadata = await SemanticModelMetadata.LoadFromPathAsync(modelPath);
+
+        _logger.LogInformation("Loaded semantic model metadata for '{SemanticModelName}' with {TableCount} tables, {ViewCount} views, and {StoredProcedureCount} stored procedures", 
+            metadata.Name, metadata.TableCount, metadata.ViewCount, metadata.StoredProcedureCount);
+
+        return metadata;
+    }
+
+    /// <inheritdoc/>
+    public async Task<ILazySemanticModel> LoadModelLazyAsync(DirectoryInfo modelPath)
+    {
+        _logger.LogInformation("Loading semantic model with lazy loading from '{ModelPath}'", modelPath);
+
+        var metadata = await LoadModelMetadataAsync(modelPath);
+        var lazyModel = new LazySemanticModel(metadata, modelPath);
+
+        _logger.LogInformation("Loaded lazy semantic model '{SemanticModelName}'", metadata.Name);
+
+        return lazyModel;
+    }
+
+    /// <inheritdoc/>
     public async Task<SemanticModel> ExtractSemanticModelAsync()
     {
         _logger.LogInformation("{Message} '{DatabaseName}'", _resourceManagerLogMessages.GetString("ExtractingModelForDatabase"), _project.Settings.Database.Name);

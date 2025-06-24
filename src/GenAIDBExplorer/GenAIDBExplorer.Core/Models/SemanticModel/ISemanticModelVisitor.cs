@@ -5,7 +5,7 @@ namespace GenAIDBExplorer.Core.Models.SemanticModel;
 /// </summary>
 public interface ISemanticModelVisitor
 {
-    void VisitSemanticModel(SemanticModel semanticModel);
+    void VisitSemanticModel(ISemanticModel semanticModel);
     void VisitTable(SemanticModelTable table);
     void VisitView(SemanticModelView view);
     void VisitStoredProcedure(SemanticModelStoredProcedure storedProcedure);

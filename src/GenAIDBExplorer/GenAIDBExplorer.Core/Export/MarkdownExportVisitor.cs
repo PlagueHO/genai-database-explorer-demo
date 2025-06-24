@@ -35,7 +35,7 @@ public class MarkdownExportVisitor(
         }
     }
 
-    public void VisitSemanticModel(SemanticModel semanticModel)
+    public void VisitSemanticModel(ISemanticModel semanticModel)
     {
         if (_outputDirectory == null)
         {
