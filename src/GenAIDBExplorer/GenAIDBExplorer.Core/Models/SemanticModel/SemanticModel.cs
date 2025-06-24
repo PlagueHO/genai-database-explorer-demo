@@ -1,7 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using GenAIDBExplorer.Core.Models.Database;
+using GenAIDBExplorer.Core.Models.Project;
 using GenAIDBExplorer.Core.Models.SemanticModel.JsonConverters;
+using GenAIDBExplorer.Core.Services;
+using Microsoft.Extensions.Logging;
 
 namespace GenAIDBExplorer.Core.Models.SemanticModel;
 
@@ -36,10 +39,28 @@ public sealed class SemanticModel(
     /// <param name="modelPath">The folder path where the model will be saved.</param>
     public async Task SaveModelAsync(DirectoryInfo modelPath)
     {
+        await SaveModelAsync(modelPath, new CompressionSettings(), null);
+    }
+
+    /// <summary>
+    /// Saves the semantic model to the specified folder with compression support.
+    /// </summary>
+    /// <param name="modelPath">The folder path where the model will be saved.</param>
+    /// <param name="compressionSettings">The compression settings to use.</param>
+    /// <param name="logger">Optional logger for compression statistics.</param>
+    public async Task SaveModelAsync(DirectoryInfo modelPath, CompressionSettings compressionSettings, ILogger? logger = null)
+    {
+        ArgumentNullException.ThrowIfNull(modelPath);
+        ArgumentNullException.ThrowIfNull(compressionSettings);
+
         JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
 
         // Save the semantic model to a JSON file.
         Directory.CreateDirectory(modelPath.FullName);
+
+        var compressionService = new CompressionService(
+            logger as ILogger<CompressionService> ?? 
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<CompressionService>.Instance);
 
         // Save the tables to separate files in a subfolder called "tables".
         var tablesFolderPath = new DirectoryInfo(Path.Combine(modelPath.FullName, "tables"));
@@ -47,7 +68,7 @@ public sealed class SemanticModel(
 
         foreach (var table in Tables)
         {
-            await table.SaveModelAsync(tablesFolderPath);
+            await table.SaveModelAsync(tablesFolderPath, compressionSettings, compressionService);
         }
 
         // Save the views to separate files in a subfolder called "views".
@@ -56,7 +77,7 @@ public sealed class SemanticModel(
 
         foreach (var view in Views)
         {
-            await view.SaveModelAsync(viewsFolderPath);
+            await view.SaveModelAsync(viewsFolderPath, compressionSettings, compressionService);
         }
 
         // Save the stored procedures to separate files in a subfolder called "storedprocedures".
@@ -65,7 +86,7 @@ public sealed class SemanticModel(
 
         foreach (var storedProcedure in StoredProcedures)
         {
-            await storedProcedure.SaveModelAsync(storedProceduresFolderPath);
+            await storedProcedure.SaveModelAsync(storedProceduresFolderPath, compressionSettings, compressionService);
         }
 
         // Add custom converters for the tables, views, and stored procedures
@@ -74,8 +95,12 @@ public sealed class SemanticModel(
         jsonSerializerOptions.Converters.Add(new SemanticModelViewJsonConverter());
         jsonSerializerOptions.Converters.Add(new SemanticModelStoredProcedureJsonConverter());
 
-        var semanticModelJsonPath = Path.Combine(modelPath.FullName, "semanticmodel.json");
-        await File.WriteAllTextAsync(semanticModelJsonPath, JsonSerializer.Serialize(this, jsonSerializerOptions));
+        var semanticModelBasePath = Path.Combine(modelPath.FullName, "semanticmodel");
+        var jsonContent = JsonSerializer.Serialize(this, jsonSerializerOptions);
+        var result = await compressionService.WriteFileAsync(semanticModelBasePath, jsonContent, compressionSettings);
+
+        logger?.LogInformation("Semantic model saved with compression {IsCompressed}, file: {FilePath}, ratio: {Ratio}%", 
+            result.IsCompressed, result.FilePath, result.CompressionRatio);
     }
 
     /// <summary>
@@ -85,16 +110,33 @@ public sealed class SemanticModel(
     /// <returns>The loaded semantic model.</returns>
     public async Task<SemanticModel> LoadModelAsync(DirectoryInfo modelPath)
     {
+        return await LoadModelAsync(modelPath, null);
+    }
+
+    /// <summary>
+    /// Loads the semantic model from the specified folder with compression support.
+    /// </summary>
+    /// <param name="modelPath">The folder path where the model is located.</param>
+    /// <param name="logger">Optional logger for loading information.</param>
+    /// <returns>The loaded semantic model.</returns>
+    public async Task<SemanticModel> LoadModelAsync(DirectoryInfo modelPath, ILogger? logger = null)
+    {
+        ArgumentNullException.ThrowIfNull(modelPath);
+
         JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
 
-        var semanticModelJsonPath = Path.Combine(modelPath.FullName, "semanticmodel.json");
-        if (!File.Exists(semanticModelJsonPath))
+        var compressionService = new CompressionService(
+            logger as ILogger<CompressionService> ?? 
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<CompressionService>.Instance);
+        var semanticModelBasePath = Path.Combine(modelPath.FullName, "semanticmodel");
+
+        if (!compressionService.FileExists(semanticModelBasePath))
         {
-            throw new FileNotFoundException("The semantic model file was not found.", semanticModelJsonPath);
+            throw new FileNotFoundException("The semantic model file was not found.", semanticModelBasePath);
         }
 
-        await using var stream = File.OpenRead(semanticModelJsonPath);
-        var semanticModel = await JsonSerializer.DeserializeAsync<SemanticModel>(stream, jsonSerializerOptions)
+        var jsonContent = await compressionService.ReadFileAsync(semanticModelBasePath);
+        var semanticModel = JsonSerializer.Deserialize<SemanticModel>(jsonContent, jsonSerializerOptions)
                ?? throw new InvalidOperationException("Failed to deserialize the semantic model.");
 
         // Load the tables listed in the model from the files in the "tables" subfolder.
@@ -103,7 +145,7 @@ public sealed class SemanticModel(
         {
             foreach (var table in semanticModel.Tables)
             {
-                await table.LoadModelAsync(tablesFolderPath);
+                await table.LoadModelAsync(tablesFolderPath, compressionService);
             }
         }
 
@@ -113,7 +155,7 @@ public sealed class SemanticModel(
         {
             foreach (var view in semanticModel.Views)
             {
-                await view.LoadModelAsync(viewsFolderPath);
+                await view.LoadModelAsync(viewsFolderPath, compressionService);
             }
         }
 
@@ -123,7 +165,7 @@ public sealed class SemanticModel(
         {
             foreach (var storedProcedure in semanticModel.StoredProcedures)
             {
-                await storedProcedure.LoadModelAsync(storedProceduresFolderPath);
+                await storedProcedure.LoadModelAsync(storedProceduresFolderPath, compressionService);
             }
         }
 

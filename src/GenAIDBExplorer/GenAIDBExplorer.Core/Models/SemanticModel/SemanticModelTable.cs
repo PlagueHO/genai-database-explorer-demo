@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GenAIDBExplorer.Core.Services;
 
 namespace GenAIDBExplorer.Core.Models.SemanticModel;
 
@@ -78,16 +79,30 @@ public sealed class SemanticModelTable(
     /// <inheritdoc/>
     public new async Task LoadModelAsync(DirectoryInfo folderPath)
     {
-        var fileName = $"{Schema}.{Name}.json";
+        var compressionService = new CompressionService(Microsoft.Extensions.Logging.Abstractions.NullLogger<CompressionService>.Instance);
+        await LoadModelAsync(folderPath, compressionService);
+    }
+
+    /// <summary>
+    /// Loads the semantic model table from the specified folder with compression support.
+    /// </summary>
+    /// <param name="folderPath">The folder path where the table will be loaded from.</param>
+    /// <param name="compressionService">The compression service to use.</param>
+    public new async Task LoadModelAsync(DirectoryInfo folderPath, ICompressionService compressionService)
+    {
+        ArgumentNullException.ThrowIfNull(folderPath);
+        ArgumentNullException.ThrowIfNull(compressionService);
+
+        var fileName = $"{Schema}.{Name}";
         var filePath = Path.Combine(folderPath.FullName, fileName);
 
-        if (!File.Exists(filePath))
+        if (!compressionService.FileExists(filePath))
         {
             throw new FileNotFoundException("The specified table file does not exist.", filePath);
         }
 
-        await using var stream = File.OpenRead(filePath);
-        var table = await JsonSerializer.DeserializeAsync<SemanticModelTable>(stream) ?? throw new InvalidOperationException("Failed to load table.");
+        var jsonContent = await compressionService.ReadFileAsync(filePath);
+        var table = JsonSerializer.Deserialize<SemanticModelTable>(jsonContent) ?? throw new InvalidOperationException("Failed to load table.");
 
         Schema = table.Schema;
         Name = table.Name;

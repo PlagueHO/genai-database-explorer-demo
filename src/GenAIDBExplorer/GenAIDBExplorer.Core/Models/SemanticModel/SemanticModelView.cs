@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GenAIDBExplorer.Core.Services;
 
 namespace GenAIDBExplorer.Core.Models.SemanticModel;
 
@@ -53,16 +54,30 @@ public sealed class SemanticModelView(
     /// <inheritdoc/>
     public new async Task LoadModelAsync(DirectoryInfo folderPath)
     {
-        var fileName = $"{Schema}.{Name}.json";
+        var compressionService = new CompressionService(Microsoft.Extensions.Logging.Abstractions.NullLogger<CompressionService>.Instance);
+        await LoadModelAsync(folderPath, compressionService);
+    }
+
+    /// <summary>
+    /// Loads the semantic model view from the specified folder with compression support.
+    /// </summary>
+    /// <param name="folderPath">The folder path where the view will be loaded from.</param>
+    /// <param name="compressionService">The compression service to use.</param>
+    public new async Task LoadModelAsync(DirectoryInfo folderPath, ICompressionService compressionService)
+    {
+        ArgumentNullException.ThrowIfNull(folderPath);
+        ArgumentNullException.ThrowIfNull(compressionService);
+
+        var fileName = $"{Schema}.{Name}";
         var filePath = Path.Combine(folderPath.FullName, fileName);
 
-        if (!File.Exists(filePath))
+        if (!compressionService.FileExists(filePath))
         {
             throw new FileNotFoundException("The specified view file does not exist.", filePath);
         }
 
-        var json = await File.ReadAllTextAsync(filePath);
-        var view = JsonSerializer.Deserialize<SemanticModelView>(json) ?? throw new InvalidOperationException("Failed to load view.");
+        var jsonContent = await compressionService.ReadFileAsync(filePath);
+        var view = JsonSerializer.Deserialize<SemanticModelView>(jsonContent) ?? throw new InvalidOperationException("Failed to load view.");
 
         Schema = view.Schema;
         Name = view.Name;

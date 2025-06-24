@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GenAIDBExplorer.Core.Models.Project;
+using GenAIDBExplorer.Core.Services;
 
 namespace GenAIDBExplorer.Core.Models.SemanticModel;
 
@@ -64,10 +66,28 @@ public abstract class SemanticModelEntity(
     /// <param name="folderPath">The folder path where the entity will be saved.</param>
     public async Task SaveModelAsync(DirectoryInfo folderPath)
     {
-        var fileName = $"{Schema}.{Name}.json";
+        var compressionSettings = new CompressionSettings(); // Default: no compression
+        var compressionService = new CompressionService(Microsoft.Extensions.Logging.Abstractions.NullLogger<CompressionService>.Instance);
+        await SaveModelAsync(folderPath, compressionSettings, compressionService);
+    }
+
+    /// <summary>
+    /// Saves the semantic model entity to the specified folder with compression support.
+    /// </summary>
+    /// <param name="folderPath">The folder path where the entity will be saved.</param>
+    /// <param name="compressionSettings">The compression settings to use.</param>
+    /// <param name="compressionService">The compression service to use.</param>
+    public async Task SaveModelAsync(DirectoryInfo folderPath, CompressionSettings compressionSettings, ICompressionService compressionService)
+    {
+        ArgumentNullException.ThrowIfNull(folderPath);
+        ArgumentNullException.ThrowIfNull(compressionSettings);
+        ArgumentNullException.ThrowIfNull(compressionService);
+
+        var fileName = $"{Schema}.{Name}";
         var filePath = Path.Combine(folderPath.FullName, fileName);
 
-        await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize<object>(this, _jsonSerializerOptions));
+        var jsonContent = JsonSerializer.Serialize<object>(this, _jsonSerializerOptions);
+        await compressionService.WriteFileAsync(filePath, jsonContent, compressionSettings);
     }
 
     /// <summary>
@@ -76,12 +96,27 @@ public abstract class SemanticModelEntity(
     /// <param name="folderPath">The folder path where the entity will be loaded from.</param>
     public async Task LoadModelAsync(DirectoryInfo folderPath)
     {
-        var fileName = $"{Schema}.{Name}.json";
+        var compressionService = new CompressionService(Microsoft.Extensions.Logging.Abstractions.NullLogger<CompressionService>.Instance);
+        await LoadModelAsync(folderPath, compressionService);
+    }
+
+    /// <summary>
+    /// Loads the semantic model entity from the specified folder with compression support.
+    /// </summary>
+    /// <param name="folderPath">The folder path where the entity will be loaded from.</param>
+    /// <param name="compressionService">The compression service to use.</param>
+    public async Task LoadModelAsync(DirectoryInfo folderPath, ICompressionService compressionService)
+    {
+        ArgumentNullException.ThrowIfNull(folderPath);
+        ArgumentNullException.ThrowIfNull(compressionService);
+
+        var fileName = $"{Schema}.{Name}";
         var filePath = Path.Combine(folderPath.FullName, fileName);
-        if (File.Exists(filePath))
+
+        if (compressionService.FileExists(filePath))
         {
-            await using var stream = File.OpenRead(filePath);
-            var entity = await JsonSerializer.DeserializeAsync<SemanticModelEntity>(stream, _jsonSerializerOptions);
+            var jsonContent = await compressionService.ReadFileAsync(filePath);
+            var entity = JsonSerializer.Deserialize<SemanticModelEntity>(jsonContent, _jsonSerializerOptions);
             if (entity != null)
             {
                 Schema = entity.Schema;
