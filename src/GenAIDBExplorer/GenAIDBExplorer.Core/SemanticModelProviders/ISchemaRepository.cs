@@ -16,4 +16,9 @@ public interface ISchemaRepository
     Task<List<SemanticModelColumn>> GetColumnsForViewAsync(ViewInfo view);
     Task<List<Dictionary<string, object>>> GetSampleTableDataAsync(TableInfo tableInfo, int numberOfRecords = 5, bool selectRandom = false);
     Task<List<Dictionary<string, object>>> GetSampleViewDataAsync(ViewInfo viewInfo, int numberOfRecords = 5, bool selectRandom = false);
+    
+    // Batch operations to reduce database round trips
+    Task<Dictionary<TableInfo, List<SemanticModelColumn>>> GetColumnsForTablesAsync(IEnumerable<TableInfo> tables);
+    Task<List<SemanticModelTable>> CreateSemanticModelTablesAsync(IEnumerable<TableInfo> tables);
+    Task<Dictionary<TableInfo, List<Dictionary<string, object>>>> GetSampleDataForTablesAsync(IEnumerable<TableInfo> tables, int numberOfRecords = 5, bool selectRandom = false);
 }

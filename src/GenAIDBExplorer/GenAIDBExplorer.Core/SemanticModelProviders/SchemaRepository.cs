@@ -551,4 +551,380 @@ public sealed class SchemaRepository(
             throw;
         }
     }
+
+    /// <summary>
+    /// Retrieves the columns for multiple tables in a single database operation to reduce round trips.
+    /// </summary>
+    /// <param name="tables">The collection of table info objects for which to retrieve columns.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a dictionary mapping each table to its columns.</returns>
+    public async Task<Dictionary<TableInfo, List<SemanticModelColumn>>> GetColumnsForTablesAsync(IEnumerable<TableInfo> tables)
+    {
+        var tablesArray = tables.ToArray();
+        if (!tablesArray.Any())
+        {
+            return new Dictionary<TableInfo, List<SemanticModelColumn>>();
+        }
+
+        var result = new Dictionary<TableInfo, List<SemanticModelColumn>>();
+        
+        try
+        {
+            // Create WHERE clause for multiple tables
+            var whereConditions = tablesArray.Select((_, index) => 
+                $"(sch.name = @SchemaName{index} AND tab.name = @TableName{index})");
+            var whereClause = string.Join(" OR ", whereConditions);
+            
+            var query = string.Format(SqlStatements.DescribeTableColumnsBatch, whereClause);
+            var parameters = new Dictionary<string, object>();
+            
+            // Add parameters for each table
+            for (int i = 0; i < tablesArray.Length; i++)
+            {
+                parameters.Add($"@SchemaName{i}", tablesArray[i].SchemaName);
+                parameters.Add($"@TableName{i}", tablesArray[i].TableName);
+            }
+
+            using var reader = await _sqlQueryExecutor.ExecuteReaderAsync(query, parameters).ConfigureAwait(false);
+
+            // Initialize result dictionary
+            foreach (var table in tablesArray)
+            {
+                result[table] = new List<SemanticModelColumn>();
+            }
+
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var schemaName = reader.GetString(0);
+                var tableName = reader.GetString(1);
+                var columnName = reader.GetString(2);
+                
+                // Find the corresponding table
+                var table = tablesArray.FirstOrDefault(t => t.SchemaName == schemaName && t.TableName == tableName);
+                if (table != null)
+                {
+                    var column = new SemanticModelColumn(schemaName, columnName)
+                    {
+                        Type = reader.GetString(4),
+                        Description = reader.IsDBNull(3) ? null : reader.GetString(3),
+                        IsPrimaryKey = reader.GetBoolean(5),
+                        MaxLength = reader.GetInt16(6),
+                        Precision = reader.GetByte(7),
+                        Scale = reader.GetByte(8),
+                        IsNullable = reader.GetBoolean(9),
+                        IsIdentity = reader.GetBoolean(10),
+                        IsComputed = reader.GetBoolean(11),
+                        IsXmlDocument = reader.GetBoolean(12)
+                    };
+                    
+                    result[table].Add(column);
+                }
+            }
+
+            // Apply usage settings to all columns
+            foreach (var tableColumns in result.Values)
+            {
+                var strategy = new RegexColumnUsageStrategy();
+                var regexPatterns = _project.Settings.Database.NotUsedColumns;
+                tableColumns.ApplyUsageSettings(strategy, regexPatterns);
+            }
+        }
+        catch (Exception ex)
+        {
+            var tableNames = string.Join(", ", tablesArray.Select(t => $"[{t.SchemaName}].[{t.TableName}]"));
+            _logger.LogError(ex, "{ErrorMessage} for tables: {TableNames}", _resourceManagerErrorMessages.GetString("ErrorGettingColumnsForTable"), tableNames);
+            throw;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Retrieves references for multiple tables in a single database operation.
+    /// </summary>
+    /// <param name="tables">The collection of table info objects for which to retrieve references.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a dictionary mapping each table to its references.</returns>
+    private async Task<Dictionary<TableInfo, List<ReferenceInfo>>> GetReferencesForTablesAsync(IEnumerable<TableInfo> tables)
+    {
+        var tablesArray = tables.ToArray();
+        if (!tablesArray.Any())
+        {
+            return new Dictionary<TableInfo, List<ReferenceInfo>>();
+        }
+
+        var result = new Dictionary<TableInfo, List<ReferenceInfo>>();
+        
+        try
+        {
+            // Create WHERE clause for multiple tables
+            var whereConditions = tablesArray.Select((_, index) => 
+                $"(sch.name = @SchemaName{index} AND parentTab.name = @TableName{index})");
+            var whereClause = string.Join(" OR ", whereConditions);
+            
+            var query = string.Format(SqlStatements.DescribeReferencesBatch, whereClause);
+            var parameters = new Dictionary<string, object>();
+            
+            // Add parameters for each table
+            for (int i = 0; i < tablesArray.Length; i++)
+            {
+                parameters.Add($"@SchemaName{i}", tablesArray[i].SchemaName);
+                parameters.Add($"@TableName{i}", tablesArray[i].TableName);
+            }
+
+            using var reader = await _sqlQueryExecutor.ExecuteReaderAsync(query, parameters).ConfigureAwait(false);
+
+            // Initialize result dictionary
+            foreach (var table in tablesArray)
+            {
+                result[table] = new List<ReferenceInfo>();
+            }
+
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var schemaName = reader.GetString(1);
+                var tableName = reader.GetString(2);
+                var columnName = reader.GetString(3);
+                var referencedTableName = reader.GetString(4);
+                var referencedColumnName = reader.GetString(5);
+
+                // Find the corresponding table
+                var table = tablesArray.FirstOrDefault(t => t.SchemaName == schemaName && t.TableName == tableName);
+                if (table != null)
+                {
+                    var reference = new ReferenceInfo(
+                        schemaName,
+                        tableName,
+                        columnName,
+                        referencedTableName,
+                        referencedColumnName
+                    );
+
+                    result[table].Add(reference);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            var tableNames = string.Join(", ", tablesArray.Select(t => $"[{t.SchemaName}].[{t.TableName}]"));
+            _logger.LogError(ex, "{ErrorMessage} for tables: {TableNames}", _resourceManagerErrorMessages.GetString("ErrorGettingReferencesForTable"), tableNames);
+            throw;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Retrieves indexes for multiple tables in a single database operation.
+    /// </summary>
+    /// <param name="tables">The collection of table info objects for which to retrieve indexes.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a dictionary mapping each table to its indexes.</returns>
+    private async Task<Dictionary<TableInfo, List<SemanticModelIndex>>> GetIndexesForTablesAsync(IEnumerable<TableInfo> tables)
+    {
+        var tablesArray = tables.ToArray();
+        if (!tablesArray.Any())
+        {
+            return new Dictionary<TableInfo, List<SemanticModelIndex>>();
+        }
+
+        var result = new Dictionary<TableInfo, List<SemanticModelIndex>>();
+        
+        try
+        {
+            // Create WHERE clause for multiple tables
+            var whereConditions = tablesArray.Select((_, index) => 
+                $"(sch.name = @SchemaName{index} AND tbl.name = @TableName{index})");
+            var whereClause = string.Join(" OR ", whereConditions);
+            
+            var query = string.Format(SqlStatements.DescribeIndexesBatch, whereClause);
+            var parameters = new Dictionary<string, object>();
+            
+            // Add parameters for each table
+            for (int i = 0; i < tablesArray.Length; i++)
+            {
+                parameters.Add($"@SchemaName{i}", tablesArray[i].SchemaName);  
+                parameters.Add($"@TableName{i}", tablesArray[i].TableName);
+            }
+
+            using var reader = await _sqlQueryExecutor.ExecuteReaderAsync(query, parameters).ConfigureAwait(false);
+
+            // Initialize result dictionary
+            foreach (var table in tablesArray)
+            {
+                result[table] = new List<SemanticModelIndex>();
+            }
+
+            while (await reader.ReadAsync().ConfigureAwait(false))
+            {
+                var schemaName = reader.GetString(0);
+                var tableName = reader.GetString(1);
+                var indexName = reader.GetString(2);
+                var indexType = reader.GetString(3);
+                var columnName = reader.GetString(4);
+                var isIncludedColumn = reader.GetBoolean(5);
+                var isUnique = reader.GetBoolean(6);
+                var isPrimaryKey = reader.GetBoolean(7);
+                var isUniqueConstraint = reader.GetBoolean(8);
+
+                // Find the corresponding table
+                var table = tablesArray.FirstOrDefault(t => t.SchemaName == schemaName && t.TableName == tableName);
+                if (table != null)
+                {
+                    var tableIndexes = result[table];
+                    var index = tableIndexes.FirstOrDefault(i => i.Name == indexName);
+                    if (index == null)
+                    {
+                        index = new SemanticModelIndex(schemaName, indexName)
+                        {
+                            Type = indexType,
+                            ColumnName = columnName,
+                            IsUnique = isUnique,
+                            IsPrimaryKey = isPrimaryKey,
+                            IsUniqueConstraint = isUniqueConstraint,
+                        };
+                        tableIndexes.Add(index);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            var tableNames = string.Join(", ", tablesArray.Select(t => $"[{t.SchemaName}].[{t.TableName}]"));
+            _logger.LogError(ex, "{ErrorMessage} for tables: {TableNames}", _resourceManagerErrorMessages.GetString("ErrorGettingIndexesForTable"), tableNames);
+            throw;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Creates semantic model tables for multiple tables in optimized batch operations to reduce database round trips.
+    /// </summary>
+    /// <param name="tables">The collection of table info objects for which to create semantic models.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a list of created semantic model tables.</returns>
+    public async Task<List<SemanticModelTable>> CreateSemanticModelTablesAsync(IEnumerable<TableInfo> tables)
+    {
+        var tablesArray = tables.ToArray();
+        if (!tablesArray.Any())
+        {
+            return new List<SemanticModelTable>();
+        }
+
+        var result = new List<SemanticModelTable>();
+        
+        try
+        {
+            // Batch operations to get all required data
+            var columnsTask = GetColumnsForTablesAsync(tablesArray);
+            var referencesTask = GetReferencesForTablesAsync(tablesArray);
+            var indexesTask = GetIndexesForTablesAsync(tablesArray);
+
+            // Wait for all batch operations to complete
+            await Task.WhenAll(columnsTask, referencesTask, indexesTask).ConfigureAwait(false);
+
+            var columnsByTable = await columnsTask;
+            var referencesByTable = await referencesTask;
+            var indexesByTable = await indexesTask;
+
+            // Create semantic model tables
+            foreach (var table in tablesArray)
+            {
+                var semanticModelTable = new SemanticModelTable(table.SchemaName, table.TableName);
+
+                // Apply usage settings based on regex patterns from DatabaseSettings
+                var tableStrategy = new RegexEntityUsageStrategy<SemanticModelTable>();
+                var tableRegexPatterns = _project.Settings.Database.NotUsedTables;
+                semanticModelTable.ApplyUsageSettings(tableStrategy, tableRegexPatterns);
+
+                // Add columns
+                if (columnsByTable.TryGetValue(table, out var columns))
+                {
+                    // Match references with columns and set the referenced properties
+                    if (referencesByTable.TryGetValue(table, out var references))
+                    {
+                        foreach (var reference in references)
+                        {
+                            var column = columns.FirstOrDefault(c => c.Name == reference.ColumnName);
+                            if (column != null)
+                            {
+                                column.ReferencedTable = reference.ReferencedTableName;
+                                column.ReferencedColumn = reference.ReferencedColumnName;
+                            }
+                        }
+                    }
+
+                    semanticModelTable.Columns.AddRange(columns);
+                }
+
+                // Add indexes
+                if (indexesByTable.TryGetValue(table, out var indexes))
+                {
+                    semanticModelTable.Indexes.AddRange(indexes);
+                }
+
+                result.Add(semanticModelTable);
+            }
+        }
+        catch (Exception ex)
+        {
+            var tableNames = string.Join(", ", tablesArray.Select(t => $"[{t.SchemaName}].[{t.TableName}]"));
+            _logger.LogError(ex, "Error creating semantic model tables for: {TableNames}", tableNames);
+            throw;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Retrieves sample data for multiple tables. Note: This method executes separate queries per table 
+    /// due to the nature of sample data queries, but groups the operations for better efficiency.
+    /// </summary>
+    /// <param name="tables">The collection of table info objects for which to retrieve sample data.</param>
+    /// <param name="numberOfRecords">The number of records to retrieve per table.</param>
+    /// <param name="selectRandom">Whether to select a random sample of records.</param>
+    /// <returns>A task representing the asynchronous operation. The task result contains a dictionary mapping each table to its sample data.</returns>
+    public async Task<Dictionary<TableInfo, List<Dictionary<string, object>>>> GetSampleDataForTablesAsync(
+        IEnumerable<TableInfo> tables,
+        int numberOfRecords = 5,
+        bool selectRandom = false)
+    {
+        var tablesArray = tables.ToArray();
+        if (!tablesArray.Any())
+        {
+            return new Dictionary<TableInfo, List<Dictionary<string, object>>>();
+        }
+
+        var result = new Dictionary<TableInfo, List<Dictionary<string, object>>>();
+
+        try
+        {
+            // Execute sample data queries in parallel for better performance
+            var tasks = tablesArray.Select(async table =>
+            {
+                try
+                {
+                    var sampleData = await GetSampleTableDataAsync(table, numberOfRecords, selectRandom).ConfigureAwait(false);
+                    return new { Table = table, Data = sampleData };
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to get sample data for table [{SchemaName}].[{TableName}]", table.SchemaName, table.TableName);
+                    return new { Table = table, Data = new List<Dictionary<string, object>>() };
+                }
+            });
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            foreach (var tableResult in results)
+            {
+                result[tableResult.Table] = tableResult.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            var tableNames = string.Join(", ", tablesArray.Select(t => $"[{t.SchemaName}].[{t.TableName}]"));
+            _logger.LogError(ex, "Error getting sample data for tables: {TableNames}", tableNames);
+            throw;
+        }
+
+        return result;
+    }
 }
