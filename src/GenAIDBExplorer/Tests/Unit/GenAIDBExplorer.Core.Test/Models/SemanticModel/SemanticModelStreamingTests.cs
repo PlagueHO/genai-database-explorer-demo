@@ -19,6 +19,8 @@ namespace GenAIDBExplorer.Core.Tests.Models.SemanticModel
             // Add a test table with columns and indexes
             var table = new SemanticModelTable("dbo", "TestTable", "Test table description");
             table.SemanticDescription = "This is a test table";
+            table.Details = "Table details from data dictionary";
+            table.AdditionalInformation = "Additional business rules information";
             
             var column1 = new SemanticModelColumn("dbo", "ID", "Primary key column")
             {
@@ -47,6 +49,7 @@ namespace GenAIDBExplorer.Core.Tests.Models.SemanticModel
             var view = new SemanticModelView("dbo", "TestView", "Test view description");
             view.Definition = "SELECT * FROM dbo.TestTable";
             view.SemanticDescription = "This is a test view";
+            view.AdditionalInformation = "View business rules information";
 
             var viewColumn = new SemanticModelColumn("dbo", "ID", "ID from table")
             {
@@ -125,6 +128,8 @@ namespace GenAIDBExplorer.Core.Tests.Models.SemanticModel
             loadedTable.Name.Should().Be(originalTable.Name);
             loadedTable.Description.Should().Be(originalTable.Description);
             loadedTable.SemanticDescription.Should().Be(originalTable.SemanticDescription);
+            loadedTable.Details.Should().Be(originalTable.Details);
+            loadedTable.AdditionalInformation.Should().Be(originalTable.AdditionalInformation);
             loadedTable.Columns.Should().HaveCount(originalTable.Columns.Count);
             loadedTable.Indexes.Should().HaveCount(originalTable.Indexes.Count);
 
@@ -136,6 +141,7 @@ namespace GenAIDBExplorer.Core.Tests.Models.SemanticModel
             loadedView.Description.Should().Be(originalView.Description);
             loadedView.SemanticDescription.Should().Be(originalView.SemanticDescription);
             loadedView.Definition.Should().Be(originalView.Definition);
+            loadedView.AdditionalInformation.Should().Be(originalView.AdditionalInformation);
             loadedView.Columns.Should().HaveCount(originalView.Columns.Count);
 
             // Verify stored procedure details
@@ -331,6 +337,49 @@ namespace GenAIDBExplorer.Core.Tests.Models.SemanticModel
                     tempDir.Delete(true);
                 }
             }
+        }
+
+        [TestMethod]
+        public async Task SaveLoadStreamAsync_WithAdditionalProperties_ShouldPreserveAllProperties()
+        {
+            // Arrange
+            var semanticModel = new SemanticModel("TestDB", "TestSource", "Test description");
+            
+            var table = new SemanticModelTable("dbo", "TestTable", "Table description");
+            table.Details = "Detailed table information";
+            table.AdditionalInformation = "Business rules and constraints";
+            table.SemanticDescription = "Semantic description";
+            table.NotUsed = true;
+            table.NotUsedReason = "Deprecated table";
+            semanticModel.AddTable(table);
+
+            var view = new SemanticModelView("dbo", "TestView", "View description");
+            view.AdditionalInformation = "View business rules";
+            view.Definition = "SELECT * FROM TestTable";
+            view.SemanticDescription = "View semantic description";
+            view.NotUsed = false;
+            semanticModel.AddView(view);
+
+            using var stream = new MemoryStream();
+
+            // Act
+            await semanticModel.SaveStreamAsync(stream);
+            stream.Position = 0;
+            var loadedModel = await semanticModel.LoadStreamAsync(stream);
+
+            // Assert
+            var loadedTable = loadedModel.Tables[0];
+            loadedTable.Details.Should().Be(table.Details);
+            loadedTable.AdditionalInformation.Should().Be(table.AdditionalInformation);
+            loadedTable.SemanticDescription.Should().Be(table.SemanticDescription);
+            loadedTable.NotUsed.Should().Be(table.NotUsed);
+            loadedTable.NotUsedReason.Should().Be(table.NotUsedReason);
+
+            var loadedView = loadedModel.Views[0];
+            loadedView.AdditionalInformation.Should().Be(view.AdditionalInformation);
+            loadedView.Definition.Should().Be(view.Definition);
+            loadedView.SemanticDescription.Should().Be(view.SemanticDescription);
+            loadedView.NotUsed.Should().Be(view.NotUsed);
         }
     }
 }

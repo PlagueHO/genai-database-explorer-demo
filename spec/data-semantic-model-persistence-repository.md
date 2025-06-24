@@ -67,6 +67,9 @@ This specification defines the requirements for implementing a repository patter
 - **PER-001**: The repository MUST support concurrent operations without data corruption
 - **PER-002**: File I/O operations MUST implement appropriate timeout mechanisms
 - **PER-003**: Large semantic models MUST support streaming and chunked processing
+- **PER-004**: Memory usage MUST be optimized for large datasets to prevent OutOfMemoryExceptions
+- **PER-005**: The repository MUST support lazy loading of semantic model entities
+- **PER-006**: Streaming serialization and deserialization MUST be available for memory-efficient handling of large models
 
 ### Error Handling Requirements
 

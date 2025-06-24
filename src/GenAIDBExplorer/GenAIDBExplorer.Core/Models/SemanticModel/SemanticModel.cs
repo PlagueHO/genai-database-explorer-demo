@@ -401,6 +401,10 @@ public sealed class SemanticModel(
         writer.WriteBoolean("NotUsed", table.NotUsed);
         if (!string.IsNullOrEmpty(table.NotUsedReason))
             writer.WriteString("NotUsedReason", table.NotUsedReason);
+        if (!string.IsNullOrEmpty(table.Details))
+            writer.WriteString("Details", table.Details);
+        if (!string.IsNullOrEmpty(table.AdditionalInformation))
+            writer.WriteString("AdditionalInformation", table.AdditionalInformation);
 
         // Write columns
         writer.WriteStartArray("Columns");
@@ -471,6 +475,8 @@ public sealed class SemanticModel(
             writer.WriteString("NotUsedReason", view.NotUsedReason);
         if (!string.IsNullOrEmpty(view.Definition))
             writer.WriteString("Definition", view.Definition);
+        if (!string.IsNullOrEmpty(view.AdditionalInformation))
+            writer.WriteString("AdditionalInformation", view.AdditionalInformation);
 
         // Write columns
         writer.WriteStartArray("Columns");
@@ -542,6 +548,10 @@ public sealed class SemanticModel(
             table.NotUsed = notUsedProperty.GetBoolean();
         if (tableElement.TryGetProperty("NotUsedReason", out var notUsedReasonProperty))
             table.NotUsedReason = notUsedReasonProperty.GetString();
+        if (tableElement.TryGetProperty("Details", out var detailsProperty))
+            table.Details = detailsProperty.GetString();
+        if (tableElement.TryGetProperty("AdditionalInformation", out var additionalInfoProperty))
+            table.AdditionalInformation = additionalInfoProperty.GetString();
 
         // Read columns
         if (tableElement.TryGetProperty("Columns", out var columnsProperty) && columnsProperty.ValueKind == JsonValueKind.Array)
@@ -585,6 +595,8 @@ public sealed class SemanticModel(
             view.NotUsedReason = notUsedReasonProperty.GetString();
         if (viewElement.TryGetProperty("Definition", out var definitionProperty))
             view.Definition = definitionProperty.GetString();
+        if (viewElement.TryGetProperty("AdditionalInformation", out var additionalInfoProperty))
+            view.AdditionalInformation = additionalInfoProperty.GetString();
 
         // Read columns
         if (viewElement.TryGetProperty("Columns", out var columnsProperty) && columnsProperty.ValueKind == JsonValueKind.Array)
