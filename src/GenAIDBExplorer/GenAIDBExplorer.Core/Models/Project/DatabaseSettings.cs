@@ -2,7 +2,7 @@
 
 namespace GenAIDBExplorer.Core.Models.Project;
 
-public class DatabaseSettings
+public class DatabaseSettings : IValidatableObject
 {
     // The settings key that contains the Database settings
     public const string PropertyName = "Database";
@@ -95,4 +95,98 @@ public class DatabaseSettings
     /// Whether to enable connection health monitoring. Default is true.
     /// </summary>
     public bool EnableHealthMonitoring { get; set; } = true;
+
+    /// <summary>
+    /// Validates the database settings configuration.
+    /// </summary>
+    /// <param name="validationContext">The validation context.</param>
+    /// <returns>A collection of validation results.</returns>
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var results = new List<ValidationResult>();
+
+        // Validate pool size settings
+        if (MinPoolSize < 0)
+        {
+            results.Add(new ValidationResult(
+                "MinPoolSize must be non-negative.",
+                new[] { nameof(MinPoolSize) }));
+        }
+
+        if (MaxPoolSize <= 0)
+        {
+            results.Add(new ValidationResult(
+                "MaxPoolSize must be greater than zero.",
+                new[] { nameof(MaxPoolSize) }));
+        }
+
+        if (MinPoolSize > MaxPoolSize)
+        {
+            results.Add(new ValidationResult(
+                "MinPoolSize cannot be greater than MaxPoolSize.",
+                new[] { nameof(MinPoolSize), nameof(MaxPoolSize) }));
+        }
+
+        // Validate timeout settings
+        if (ConnectionTimeout <= 0)
+        {
+            results.Add(new ValidationResult(
+                "ConnectionTimeout must be greater than zero.",
+                new[] { nameof(ConnectionTimeout) }));
+        }
+
+        if (CommandTimeout <= 0)
+        {
+            results.Add(new ValidationResult(
+                "CommandTimeout must be greater than zero.",
+                new[] { nameof(CommandTimeout) }));
+        }
+
+        // Validate retry settings
+        if (MaxRetryAttempts < 0)
+        {
+            results.Add(new ValidationResult(
+                "MaxRetryAttempts must be non-negative.",
+                new[] { nameof(MaxRetryAttempts) }));
+        }
+
+        if (RetryDelayMilliseconds < 0)
+        {
+            results.Add(new ValidationResult(
+                "RetryDelayMilliseconds must be non-negative.",
+                new[] { nameof(RetryDelayMilliseconds) }));
+        }
+
+        // Validate MaxDegreeOfParallelism
+        if (MaxDegreeOfParallelism <= 0)
+        {
+            results.Add(new ValidationResult(
+                "MaxDegreeOfParallelism must be greater than zero.",
+                new[] { nameof(MaxDegreeOfParallelism) }));
+        }
+
+        // Warn about potentially problematic configurations
+        if (MaxPoolSize > 1000)
+        {
+            results.Add(new ValidationResult(
+                "MaxPoolSize is very high (>1000). Consider if this is necessary as it may consume excessive resources.",
+                new[] { nameof(MaxPoolSize) }));
+        }
+
+        if (ConnectionTimeout > 300)
+        {
+            results.Add(new ValidationResult(
+                "ConnectionTimeout is very high (>300 seconds). This may cause long delays in error scenarios.",
+                new[] { nameof(ConnectionTimeout) }));
+        }
+
+        if (PoolingEnabled && MaxDegreeOfParallelism > 1 && !ConnectionString.Contains("MultipleActiveResultSets=True", StringComparison.OrdinalIgnoreCase))
+        {
+            results.Add(new ValidationResult(
+                "When MaxDegreeOfParallelism > 1, the connection string should include 'MultipleActiveResultSets=True' for optimal performance.",
+                new[] { nameof(MaxDegreeOfParallelism), nameof(ConnectionString) }));
+        }
+
+        return results;
+    }
 }
