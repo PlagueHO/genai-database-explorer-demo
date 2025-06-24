@@ -113,7 +113,7 @@ module keyVault 'br/public:avm/res/key-vault/vault:0.7.1' = {
 }
 
 // Example: Referencing Key Vault secret
-module sqlServerWithKeyVault 'br/public:avm/res/sql/server:0.17.0' = {
+module sqlServerWithKeyVault 'br/public:avm/res/sql/server:0.19.1' = {
   name: 'sqlServer'
   params: {
     name: 'sql-${environmentName}'
