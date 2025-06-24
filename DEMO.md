@@ -100,7 +100,21 @@ Switch to `Agent` mode:
 /update_avm_modules_in_bicep in #file:main.bicep
 ```
 
-## Part 3 - Adding Lazy Loading and Dirty Tracking
+## Part 3 - Upgrade Package with a Plan
+
+Switch to `plan` mode:
+
+```md
+Create a plan for updating the package System.CommandLine in #file:GenAIDBExplorer.Console from the current version in the project to 2.0.0-beta5.25306.1. Refer to the migration instructions in https://learn.microsoft.com/en-us/dotnet/standard/commandline/migration-guide-2.0.0-beta5
+```
+
+Switch to `Agent` mode:
+
+```md
+/create_github_issue_feature_from_plan PlanFile:#file:upgrade-system-commandline-beta5.md 
+```
+
+## Part 4 - Adding Lazy Loading and Dirty Tracking
 
 ### Create a specification for the Semantic Model Persistence Repository
 
@@ -117,7 +131,7 @@ Review the #file:data-semantic-model-persistence-repository.md  making any note 
 - Include diagrams if appropriate to demonstrating the issue.
 ```
 
-Switch to `jannitor` chat mode:
+Switch to `janitor` chat mode:
 
 ```md
 Hey, what janitorial work is needed for the semantic repository?
