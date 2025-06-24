@@ -23,7 +23,12 @@
         ] // Array of mappings to convert column types during data dictionary import.
     },
     "SemanticModel": {
-        "MaxDegreeOfParallelism": 10 // Number of parallel semantic model tasks to run.
+        "MaxDegreeOfParallelism": 10, // Number of parallel semantic model tasks to run.
+        "Compression": {
+            "Enabled": false, // Enable compression for semantic model files (uses .json.gz files)
+            "Level": "Optimal", // Compression level: Optimal, Fastest, NoCompression, SmallestSize
+            "FileExtension": ".json.gz" // File extension for compressed files
+        }
     },
     "OpenAIService": {
         "Default": {

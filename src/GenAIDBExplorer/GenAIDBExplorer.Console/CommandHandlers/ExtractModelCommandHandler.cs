@@ -101,7 +101,7 @@ public class ExtractModelCommandHandler(
         var semanticModelDirectory = new DirectoryInfo(Path.Combine(projectPath.FullName, semanticModel.Name));
 
         _logger.LogInformation("{Message} '{ProjectPath}'", _resourceManagerLogMessages.GetString("SavingSemanticModel"), semanticModelDirectory);
-        await semanticModel.SaveModelAsync(semanticModelDirectory);
+        await semanticModel.SaveModelAsync(semanticModelDirectory, _project.Settings.SemanticModel.Compression, _logger);
 
         _logger.LogInformation("{Message} '{ProjectPath}'", _resourceManagerLogMessages.GetString("ExtractSemanticModelComplete"), projectPath.FullName);
     }

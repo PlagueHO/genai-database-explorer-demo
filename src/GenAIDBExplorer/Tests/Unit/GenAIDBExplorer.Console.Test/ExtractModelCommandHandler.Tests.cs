@@ -32,6 +32,19 @@ public class ExtractModelCommandHandlerTests
         _mockLogger = new Mock<ILogger<ICommandHandler<ExtractModelCommandHandlerOptions>>>();
         _mockOutputService = new Mock<IOutputService>();
 
+        // Set up project settings for compression
+        var projectSettings = new ProjectSettings
+        {
+            Database = new DatabaseSettings(),
+            DataDictionary = new DataDictionarySettings(),
+            OpenAIService = new OpenAIServiceSettings(),
+            SemanticModel = new SemanticModelSettings
+            {
+                Compression = new CompressionSettings()
+            }
+        };
+        _mockProject.Setup(p => p.Settings).Returns(projectSettings);
+
         // Arrange: Initialize the handler with mock dependencies
         _handler = new ExtractModelCommandHandler(
             _mockProject.Object,
