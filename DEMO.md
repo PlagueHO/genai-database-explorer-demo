@@ -184,3 +184,9 @@ param location = readEnvironmentVariable('AZURE_LOCATION', 'EastUS2')
 ```md
 Add a new GitHub Issue template based on the #file:'feature_request.yml', but instead it should be a chore_request.yml. It should be to collect issues that are related to general solution hygiene, chores and technical debt remediation like package updates, refactoring that don't specifically change the application. They might cover moving files around, refactoring code, updating GitHub actions pipelines, package updates or improving, adding test coverage. Add anything else you might think is relevant. The goal will be that this chore_request template will be used to create chores to assign to GitHub Copilot Coding Agents to do, so collecting appropriate information in the issue to ensure they can work effectively is critical.
 ```
+
+### Create a plan for the Semantic Model Persistence Repository updates
+
+```md
+/create_plan PlanPurpose:'Data Semantic Model Repository Updates' based on the plan that was just defined to implement the missing requirements. After each Phase of the plan, the application should still work correctly and no functionality should be not working - can you confirm this?
+```
