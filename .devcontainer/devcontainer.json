@@ -2,16 +2,16 @@
     "name": "genai-database-explorer",
     "image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-jammy",
     "workspaceFolder": "/workspaces/genai-database-explorer",
-    "onCreateCommand": "bash ./.devcontainer/on-setup.sh",
+    "onCreateCommand": "tr -d '\\r' < .devcontainer/on-setup.sh > /tmp/on-setup.sh && mv /tmp/on-setup.sh .devcontainer/on-setup.sh && chmod +x .devcontainer/on-setup.sh && bash .devcontainer/on-setup.sh",
     // Features to add to the dev container. More info: https://containers.dev/features.
     "features": {
         "ghcr.io/devcontainers/features/azure-cli:1": {
             "version": "latest"
         },
         "ghcr.io/devcontainers/features/dotnet:2": {
-            "version": "8.0",
-            "dotnetRuntimeVersions": "8.0",
-            "aspNetCoreRuntimeVersions": "8.0"
+            "version": "9.0",
+            "dotnetRuntimeVersions": "9.0",
+            "aspNetCoreRuntimeVersions": "9.0"
         },
         "ghcr.io/devcontainers/features/powershell:1": {
             "version": "latest"
@@ -95,7 +95,7 @@
     
     // Add additional configuration
     "remoteUser": "vscode",
-    "postCreateCommand": "dotnet restore",
+    "postCreateCommand": "dotnet restore src/GenAIDBExplorer/",
     "forwardPorts": [5000, 5001, 7071],
     "portsAttributes": {
         "5000": {
