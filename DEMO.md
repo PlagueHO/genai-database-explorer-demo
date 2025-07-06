@@ -17,17 +17,8 @@
 
 ```json
 {
+    "inputs": [],
     "servers": {
-        "filesystem": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-filesystem",
-                "${input:baseDirectory}"
-            ],
-            "type": "stdio",
-            "env": {}
-        },
         "playwright": {
             "command": "npx",
             "args": [
@@ -37,46 +28,15 @@
             "type": "stdio",
             "env": {}
         },
+        "microsoft.docs.mcp": {
+            "type": "http",
+            "url": "https://learn.microsoft.com/api/mcp"
+        },
         "github": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-github"
-            ],
-            "env": {
-                "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
-            }
-        },
-        "giphy": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "mcp-server-giphy"
-            ],
-            "env": {
-                "GIPHY_API_KEY": "${input:giphy_api_key}"
-            }
+            "url": "https://api.githubcopilot.com/mcp/",
+            "type": "http"
         }
-    },
-    "inputs": [
-        {
-            "id": "baseDirectory",
-            "type": "promptString",
-            "description": "Enter the base directory path for the server"
-        },
-        {
-            "id": "github_token",
-            "type": "promptString",
-            "description": "GitHub Personal Access Token",
-            "password": true
-        },
-        {
-            "id": "giphy_api_key",
-            "type": "promptString",
-            "description": "Giphy API Key",
-            "password": true
-        }
-    ]
+    }
 }
 ```
 
