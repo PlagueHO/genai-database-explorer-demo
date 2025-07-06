@@ -40,27 +40,7 @@
 }
 ```
 
-## Part 2a - Infrastructure as Code Update using Custom Chat Modes
-
-Switch to `azure_verified_modules_bicep` chat mode:
-
-```md
-Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
-```
-
-```md
-Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
-```
-
-## Part 2b - Infrastructure Deployment Bicep using Prompt File
-
-Switch to `Agent` mode:
-
-```md
-/update_avm_modules_in_bicep in #file:main.bicep
-```
-
-## Part 3 - Upgrade Package with a Plan
+## Part 2 - Upgrade Package with a Plan
 
 Switch to `plan` mode:
 
@@ -74,7 +54,7 @@ Switch to `Agent` mode:
 /create_github_issue_feature_from_plan PlanFile:#file:upgrade-system-commandline-beta5.md 
 ```
 
-## Part 4 - Adding Lazy Loading and Dirty Tracking
+## Part 3 - Adding Lazy Loading and Dirty Tracking
 
 ### Create a specification for the Semantic Model Persistence Repository
 
@@ -149,4 +129,24 @@ Add a new GitHub Issue template based on the #file:'feature_request.yml', but in
 
 ```md
 /create_plan PlanPurpose:'Data Semantic Model Repository Updates' based on the plan that was just defined to implement the missing requirements. After each Phase of the plan, the application should still work correctly and no functionality should be not working - can you confirm this?
+```
+
+## Part 4a - Infrastructure as Code Update using Custom Chat Modes
+
+Switch to `azure_verified_modules_bicep` chat mode:
+
+```md
+Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
+```
+
+```md
+Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
+```
+
+## Part 4b - Infrastructure Deployment Bicep using Prompt File
+
+Switch to `Agent` mode:
+
+```md
+/update_avm_modules_in_bicep in #file:main.bicep
 ```
