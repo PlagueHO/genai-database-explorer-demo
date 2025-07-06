@@ -42,7 +42,7 @@
 
 ## Part 2 - Upgrade Package with a Plan
 
-Switch to `plan` mode:
+Switch to `implementation_plan` mode:
 
 ```md
 Create a plan for updating the package System.CommandLine in #file:GenAIDBExplorer.Console from the current version in the project to 2.0.0-beta5.25306.1. Refer to the migration instructions in https://learn.microsoft.com/en-us/dotnet/standard/commandline/migration-guide-2.0.0-beta5
@@ -51,8 +51,14 @@ Create a plan for updating the package System.CommandLine in #file:GenAIDBExplor
 Switch to `Agent` mode:
 
 ```md
-/create_github_issue_feature_from_plan PlanFile:#file:upgrade-system-commandline-beta5.md 
+/create_github_issue_from_implementation_plan PlanFile:#file:upgrade-system-commandline-beta5.md using #file:chore_request.yml template
 ```
+
+Swtich to Coding Agent:
+
+Open [GitHub Issues](https://github.com/PlagueHO/genai-database-explorer-demo/issues) and find the issue created by the previous step. Review the issue and then assign it to Copilot.
+
+Open Coding Agents page: [https://github.com/copilot/agents](https://github.com/copilot/agents)
 
 ## Part 3 - Adding Lazy Loading and Dirty Tracking
 
