@@ -84,7 +84,7 @@ Hey, what janitorial work is needed for the semantic repository?
 ```
 
 ```md
-/create_spec SpecPurpose:Persisting the Semantic Model for a Database Schema for the Generative AI database explorer using a repository pattern. Define the specification requirements based on the current implementation in the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Ensure you refer to the relevant interfaces.
+Can you read the #file:spec-data-semantic-model-repository.md and review your janitorial recommendations against that and make sure you're not recommending to remove something that is in the spec?
 ```
 
 ### Identify performance issues and suggest improvements
