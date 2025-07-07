@@ -1,4 +1,5 @@
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 using GenAIDBExplorer.Core.Models.Project;
 using GenAIDBExplorer.Core.SemanticModelProviders;
@@ -42,7 +43,7 @@ namespace GenAIDBExplorer.Console.CommandHandlers
                 description: "The path to the GenAI Database Explorer project."
             )
             {
-                IsRequired = true
+                Required = true
             };
 
             var schemaNameOption = new Option<string>(
@@ -50,7 +51,7 @@ namespace GenAIDBExplorer.Console.CommandHandlers
                 description: "The schema name of the object to show."
             )
             {
-                IsRequired = true
+                Required = true
             };
 
             var nameOption = new Option<string>(
@@ -58,56 +59,59 @@ namespace GenAIDBExplorer.Console.CommandHandlers
                 description: "The name of the object to show."
             )
             {
-                IsRequired = true
+                Required = true
             };
 
             // Create the base 'show' command
             var showCommand = new Command("show-object", "Show details of a semantic model object.");
 
             // Create subcommands
-            var tableCommand = new Command("table", "Show details of a table.")
+            var tableCommand = new Command("table", "Show details of a table.");
+            tableCommand.Options.Add(projectPathOption);
+            tableCommand.Options.Add(schemaNameOption);
+            tableCommand.Options.Add(nameOption);
+            tableCommand.SetAction(async (parseResult) =>
             {
-                projectPathOption,
-                schemaNameOption,
-                nameOption
-            };
-            tableCommand.SetHandler(async (DirectoryInfo projectPath, string schemaName, string name) =>
-            {
+                var projectPath = parseResult.GetValue(projectPathOption);
+                var schemaName = parseResult.GetValue(schemaNameOption);
+                var name = parseResult.GetValue(nameOption);
                 var handler = host.Services.GetRequiredService<ShowObjectCommandHandler>();
                 var options = new ShowObjectCommandHandlerOptions(projectPath, schemaName, name, "table");
                 await handler.HandleAsync(options);
-            }, projectPathOption, schemaNameOption, nameOption);
+            });
 
-            var viewCommand = new Command("view", "Show details of a view.")
+            var viewCommand = new Command("view", "Show details of a view.");
+            viewCommand.Options.Add(projectPathOption);
+            viewCommand.Options.Add(schemaNameOption);
+            viewCommand.Options.Add(nameOption);
+            viewCommand.SetAction(async (parseResult) =>
             {
-                projectPathOption,
-                schemaNameOption,
-                nameOption
-            };
-            viewCommand.SetHandler(async (DirectoryInfo projectPath, string schemaName, string name) =>
-            {
+                var projectPath = parseResult.GetValue(projectPathOption);
+                var schemaName = parseResult.GetValue(schemaNameOption);
+                var name = parseResult.GetValue(nameOption);
                 var handler = host.Services.GetRequiredService<ShowObjectCommandHandler>();
                 var options = new ShowObjectCommandHandlerOptions(projectPath, schemaName, name, "view");
                 await handler.HandleAsync(options);
-            }, projectPathOption, schemaNameOption, nameOption);
+            });
 
-            var storedProcedureCommand = new Command("storedprocedure", "Show details of a stored procedure.")
+            var storedProcedureCommand = new Command("storedprocedure", "Show details of a stored procedure.");
+            storedProcedureCommand.Options.Add(projectPathOption);
+            storedProcedureCommand.Options.Add(schemaNameOption);
+            storedProcedureCommand.Options.Add(nameOption);
+            storedProcedureCommand.SetAction(async (parseResult) =>
             {
-                projectPathOption,
-                schemaNameOption,
-                nameOption
-            };
-            storedProcedureCommand.SetHandler(async (DirectoryInfo projectPath, string schemaName, string name) =>
-            {
+                var projectPath = parseResult.GetValue(projectPathOption);
+                var schemaName = parseResult.GetValue(schemaNameOption);
+                var name = parseResult.GetValue(nameOption);
                 var handler = host.Services.GetRequiredService<ShowObjectCommandHandler>();
                 var options = new ShowObjectCommandHandlerOptions(projectPath, schemaName, name, "storedprocedure");
                 await handler.HandleAsync(options);
-            }, projectPathOption, schemaNameOption, nameOption);
+            });
 
             // Add subcommands to the 'show' command
-            showCommand.AddCommand(tableCommand);
-            showCommand.AddCommand(viewCommand);
-            showCommand.AddCommand(storedProcedureCommand);
+            showCommand.Subcommands.Add(tableCommand);
+            showCommand.Subcommands.Add(viewCommand);
+            showCommand.Subcommands.Add(storedProcedureCommand);
 
             return showCommand;
         }

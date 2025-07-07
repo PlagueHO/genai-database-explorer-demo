@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -52,7 +53,7 @@ public class ExportModelCommandHandler : CommandHandler<ExportModelCommandHandle
             description: "The path to the GenAI Database Explorer project."
         )
         {
-            IsRequired = true
+            Required = true
         };
 
         var outputFileNameOption = new Option<string?>(
@@ -73,17 +74,21 @@ public class ExportModelCommandHandler : CommandHandler<ExportModelCommandHandle
         );
 
         var exportModelCommand = new Command("export-model", "Export the semantic model from a GenAI Database Explorer project.");
-        exportModelCommand.AddOption(projectPathOption);
-        exportModelCommand.AddOption(outputFileNameOption);
-        exportModelCommand.AddOption(fileTypeOption);
-        exportModelCommand.AddOption(splitFilesOption);
+        exportModelCommand.Options.Add(projectPathOption);
+        exportModelCommand.Options.Add(outputFileNameOption);
+        exportModelCommand.Options.Add(fileTypeOption);
+        exportModelCommand.Options.Add(splitFilesOption);
 
-        exportModelCommand.SetHandler(async (DirectoryInfo projectPath, string? outputFileName, string fileType, bool splitFiles) =>
+        exportModelCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
+            var outputFileName = parseResult.GetValue(outputFileNameOption);
+            var fileType = parseResult.GetValue(fileTypeOption);
+            var splitFiles = parseResult.GetValue(splitFilesOption);
             var handler = host.Services.GetRequiredService<ExportModelCommandHandler>();
             var options = new ExportModelCommandHandlerOptions(projectPath, outputFileName, fileType, splitFiles);
             await handler.HandleAsync(options);
-        }, projectPathOption, outputFileNameOption, fileTypeOption, splitFilesOption);
+        });
 
         return exportModelCommand;
     }

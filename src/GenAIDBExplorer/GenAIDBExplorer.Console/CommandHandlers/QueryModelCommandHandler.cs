@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -46,17 +47,18 @@ public class QueryModelCommandHandler(
             description: "The path to the GenAI Database Explorer project."
         )
         {
-            IsRequired = true
+            Required = true
         };
 
         var queryCommand = new Command("query-model", "Answer questions based on the semantic model by using Generative AI.");
-        queryCommand.AddOption(projectPathOption);
-        queryCommand.SetHandler(async (DirectoryInfo projectPath) =>
+        queryCommand.Options.Add(projectPathOption);
+        queryCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
             var handler = host.Services.GetRequiredService<QueryModelCommandHandler>();
             var options = new QueryModelCommandHandlerOptions(projectPath);
             await handler.HandleAsync(options);
-        }, projectPathOption);
+        });
 
         return queryCommand;
     }
