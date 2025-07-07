@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -51,7 +52,7 @@ public class DataDictionaryCommandHandler(
             description: "The path to the GenAI Database Explorer project."
         )
         {
-            IsRequired = true
+            Required = true
         };
 
         var sourcePathOption = new Option<string>(
@@ -59,7 +60,7 @@ public class DataDictionaryCommandHandler(
             description: "The path to the source directory containing data dictionary files. Supports file masks."
         )
         {
-            IsRequired = true
+            Required = true
         };
 
         var schemaNameOption = new Option<string>(
@@ -67,7 +68,7 @@ public class DataDictionaryCommandHandler(
             description: "The schema name of the object to process."
         )
         {
-            ArgumentHelpName = "schemaName"
+            HelpName = "schemaName"
         };
 
         var nameOption = new Option<string>(
@@ -75,7 +76,7 @@ public class DataDictionaryCommandHandler(
             description: "The name of the object to process."
         )
         {
-            ArgumentHelpName = "name"
+            HelpName = "name"
         };
 
         var showOption = new Option<bool>(
@@ -84,21 +85,22 @@ public class DataDictionaryCommandHandler(
             getDefaultValue: () => false
         );
 
-        var dataDictionaryCommand = new Command("data-dictionary", "Process data dictionary files and update the semantic model.")
-        {
-            projectPathOption
-        };
+        var dataDictionaryCommand = new Command("data-dictionary", "Process data dictionary files and update the semantic model.");
+        dataDictionaryCommand.Options.Add(projectPathOption);
 
-        var tableCommand = new Command("table", "Process table data dictionary files.")
+        var tableCommand = new Command("table", "Process table data dictionary files.");
+        tableCommand.Options.Add(projectPathOption);
+        tableCommand.Options.Add(sourcePathOption);
+        tableCommand.Options.Add(schemaNameOption);
+        tableCommand.Options.Add(nameOption);
+        tableCommand.Options.Add(showOption);
+        tableCommand.SetAction(async (parseResult) =>
         {
-            projectPathOption,
-            sourcePathOption,
-            schemaNameOption,
-            nameOption,
-            showOption
-        };
-        tableCommand.SetHandler(async (DirectoryInfo projectPath, string sourcePathPattern, string schemaName, string name, bool show) =>
-        {
+            var projectPath = parseResult.GetValue(projectPathOption);
+            var sourcePathPattern = parseResult.GetValue(sourcePathOption);
+            var schemaName = parseResult.GetValue(schemaNameOption);
+            var name = parseResult.GetValue(nameOption);
+            var show = parseResult.GetValue(showOption);
             var handler = host.Services.GetRequiredService<DataDictionaryCommandHandler>();
             var options = new DataDictionaryCommandHandlerOptions(
                 projectPath,
@@ -109,9 +111,9 @@ public class DataDictionaryCommandHandler(
                 show: show
             );
             await handler.HandleAsync(options);
-        }, projectPathOption, sourcePathOption, schemaNameOption, nameOption, showOption);
+        });
 
-        dataDictionaryCommand.AddCommand(tableCommand);
+        dataDictionaryCommand.Subcommands.Add(tableCommand);
 
         return dataDictionaryCommand;
     }

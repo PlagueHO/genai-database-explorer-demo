@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -44,7 +45,7 @@ public class ExtractModelCommandHandler(
             description: "The path to the GenAI Database Explorer project."
         )
         {
-            IsRequired = true
+            Required = true
         };
 
         var skipTablesOption = new Option<bool>(
@@ -66,16 +67,20 @@ public class ExtractModelCommandHandler(
         );
 
         var extractModelCommand = new Command("extract-model", "Extract a semantic model from a SQL database for a GenAI Database Explorer project.");
-        extractModelCommand.AddOption(projectPathOption);
-        extractModelCommand.AddOption(skipTablesOption);
-        extractModelCommand.AddOption(skipViewsOption);
-        extractModelCommand.AddOption(skipStoredProceduresOption);
-        extractModelCommand.SetHandler(async (DirectoryInfo projectPath, bool skipTables, bool skipViews, bool skipStoredProcedures) =>
+        extractModelCommand.Options.Add(projectPathOption);
+        extractModelCommand.Options.Add(skipTablesOption);
+        extractModelCommand.Options.Add(skipViewsOption);
+        extractModelCommand.Options.Add(skipStoredProceduresOption);
+        extractModelCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
+            var skipTables = parseResult.GetValue(skipTablesOption);
+            var skipViews = parseResult.GetValue(skipViewsOption);
+            var skipStoredProcedures = parseResult.GetValue(skipStoredProceduresOption);
             var handler = host.Services.GetRequiredService<ExtractModelCommandHandler>();
             var options = new ExtractModelCommandHandlerOptions(projectPath, skipTables, skipViews, skipStoredProcedures);
             await handler.HandleAsync(options);
-        }, projectPathOption, skipTablesOption, skipViewsOption, skipStoredProceduresOption);
+        });
 
         return extractModelCommand;
     }

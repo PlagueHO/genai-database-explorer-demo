@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -44,17 +45,18 @@ public class InitProjectCommandHandler(
             description: "The path to the GenAI Database Explorer project."
         )
         {
-            IsRequired = true
+            Required = true
         };
 
         var initCommand = new Command("init-project", "Initialize a GenAI Database Explorer project.");
-        initCommand.AddOption(projectPathOption);
-        initCommand.SetHandler(async (DirectoryInfo projectPath) =>
+        initCommand.Options.Add(projectPathOption);
+        initCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
             var handler = host.Services.GetRequiredService<InitProjectCommandHandler>();
             var options = new InitProjectCommandHandlerOptions(projectPath);
             await handler.HandleAsync(options);
-        }, projectPathOption);
+        });
 
         return initCommand;
     }
