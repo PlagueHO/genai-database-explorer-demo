@@ -127,17 +127,45 @@ param environmentName = readEnvironmentVariable('AZURE_ENV_NAME', 'azdtemp')
 param location = readEnvironmentVariable('AZURE_LOCATION', 'EastUS2')
 ````
 
-```md
-Add a new GitHub Issue template based on the #file:'feature_request.yml', but instead it should be a chore_request.yml. It should be to collect issues that are related to general solution hygiene, chores and technical debt remediation like package updates, refactoring that don't specifically change the application. They might cover moving files around, refactoring code, updating GitHub actions pipelines, package updates or improving, adding test coverage. Add anything else you might think is relevant. The goal will be that this chore_request template will be used to create chores to assign to GitHub Copilot Coding Agents to do, so collecting appropriate information in the issue to ensure they can work effectively is critical.
-```
-
 ### Create a plan for the Semantic Model Persistence Repository updates
 
 ```md
-/create_plan PlanPurpose:'Data Semantic Model Repository Updates' based on the plan that was just defined to implement the missing requirements. After each Phase of the plan, the application should still work correctly and no functionality should be not working - can you confirm this?
+/create_implementation_plan PlanPurpose:'Data Semantic Model Repository Updates' based on the plan that was just defined to implement the missing requirements. After each Phase of the plan, the application should still work correctly and no functionality should be not working - can you confirm this?
 ```
 
-## Part 4a - Infrastructure as Code Update using Custom Chat Modes
+### Start executing the plan
+
+Switch to `Agent` mode:
+
+```md
+Start executing the implementation plan in #file:upgrade-data-semantic-model-repository.md. Execute it phase by phase, ensuring that after each phase the application still works correctly and no functionality is broken. If you have any questions or need clarification on any part of the plan, ask before proceeding. Make sure to update the implementation plan file with the progress and any changes made during the execution.
+```
+
+## Part 4 - Create Tests
+
+Switch to `Agent` chat mode:
+
+```md
+/suggest_awesome_github_copilot_prompts MSTests
+```
+
+```md
+Install MSTest Best Practices prompt
+```
+
+```md
+/csharp-mstest Review #file:spec-data-semantic-model-repository.md and identify any areas that need unit tests. Create a list of unit tests that should be created to ensure the functionality is tested.
+```
+
+```md
+/create_plan for implementing the unit tests identified in the previous step.
+```
+
+```md
+Create the tests in the implementation plan #file:...
+```
+
+## Part 5a - Infrastructure as Code Update using Custom Chat Modes
 
 Switch to `azure_verified_modules_bicep` chat mode:
 
@@ -149,10 +177,16 @@ Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating?
 Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
 ```
 
-## Part 4b - Infrastructure Deployment Bicep using Prompt File
+## Part 5b - Infrastructure Deployment Bicep using Prompt File
 
 Switch to `Agent` mode:
 
 ```md
 /update_avm_modules_in_bicep in #file:main.bicep
+```
+
+## Part 6 - Admin Tasks
+
+```md
+Add a new GitHub Issue template based on the #file:'feature_request.yml', but instead it should be a chore_request.yml. It should be to collect issues that are related to general solution hygiene, chores and technical debt remediation like package updates, refactoring that don't specifically change the application. They might cover moving files around, refactoring code, updating GitHub actions pipelines, package updates or improving, adding test coverage. Add anything else you might think is relevant. The goal will be that this chore_request template will be used to create chores to assign to GitHub Copilot Coding Agents to do, so collecting appropriate information in the issue to ensure they can work effectively is critical.
 ```
