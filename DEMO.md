@@ -42,6 +42,12 @@
 
 ## Part 2 - Upgrade Package with a Plan
 
+Switch to `Agent` chat mode "This agent will create a plan to upgrade the System.CommandLine package in the GenAIDBExplorer.Console project to version 2.0.0-beta5.25306.1. - but it probably won't do a great job of it":
+
+```md
+Refactor the #file:GenAIDBExplorer.Console.csproj to update the System.CommandLine package to use version 2.0.0-beta5.25306.1.
+```
+
 Switch to `implementation_plan` mode:
 
 ```md
