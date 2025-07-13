@@ -70,6 +70,18 @@ Open Coding Agents page: [https://github.com/copilot/agents](https://github.com/
 
 ### Create a specification for the Semantic Model Persistence Repository
 
+Switch to `Agent` mode:
+
+```md
+/create_specification for the current implementation of the Semantic Model in the #file:GenAIDBExplorer.Core.
+```
+
+Switch to `/expert_dotnet_software_engineer` chat mode:
+
+```md
+How could the implementation of this specification be improved to meet best practices?
+```
+
 Switch to `/expert_dotnet_software_engineer` chat mode:
 
 ```md

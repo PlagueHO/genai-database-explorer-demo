@@ -1,3 +1,5 @@
+Refactor the #file:GenAIDBExplorer.Console.csproj to update the System.CommandLine package to use version 2.0.0-beta5.25306.1.
+[end]
 Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
 [end]
 Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
@@ -6,7 +8,7 @@ Nah, can you use #create_issue and the #file:chore_request.yml template to creat
 [end]
 Review the #file:data-semantic-model-persistence-repository.md making any note of performance problems, especially as we increase the number of entities? List these as a table containing:[enter]
 - Issue description[enter]
-- Recommendation to resolve[enter]  
+- Recommendation to resolve[enter]
 - Priority (High, Medium, Low)[enter]
 - Difficulty to implement (High, Medium, Low)[enter]
 - Benefit of resolving the issue[enter]
