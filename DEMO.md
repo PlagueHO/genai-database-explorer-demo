@@ -177,7 +177,7 @@ Refactor the #file:GenAIDBExplorer.Console.csproj to update the System.CommandLi
 Switch to `implementation_plan` mode:
 
 ```md
-Create a plan for updating the package System.CommandLine in #file:GenAIDBExplorer.Console from the current version in the project to 2.0.0-beta5.25306.1. Refer to the migration instructions in https://learn.microsoft.com/en-us/dotnet/standard/commandline/migration-guide-2.0.0-beta5
+Create a plan for updating the package System.CommandLine in #file:GenAIDBExplorer.Console from the current version in the project to 2.0.0-beta5.25306.1. You must #fetch https://learn.microsoft.com/en-us/dotnet/standard/commandline/migration-guide-2.0.0-beta5 and use these instructions to define the steps in the plan.
 ```
 
 Switch to `Agent` mode:
