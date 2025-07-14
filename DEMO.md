@@ -2,6 +2,54 @@
 
 ## Part 1 - Customize Copilot
 
+### Set up Copilot Instructions
+
+```md
+# Instructions for AI Agents in this Repository
+This is a .NET 9 solution that uses Generative AI to help users explore and query relational databases. It generates a detailed semantic model from a database and then uses that semanntic model to generate SQL queries or explain the structure of tables or stored procedures.
+
+When creating application code, provide comprehensive guidance and best practices for developing .NET 9 applications that are designed to run in Azure. Use the latest C# 14 development features and language constructs to build a modern, scalable, and secure application.
+
+## Key Principles
+- Use the latest C# 14 language features and constructs to build modern, scalable, and secure applications.
+- Use SOLID principles (Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion) to design and implement your application.
+- Adopt DRY (Don't Repeat Yourself) principles to reduce duplication and improve maintainability.
+- Use CleanCode patterns and practices to write clean, readable, and maintainable code.
+- Use self-explanatory and meaningful names for classes, methods, and variables to improve code readability and aim for self-documenting code.
+- Security > Maintainability > Performance: prioritize security and maintainability over performance, but strive for a balance.
+- Use Dependency Injection to manage dependencies and improve testability.
+- Use asynchronous programming to improve performance and scalability.
+- Include clear method documentation and comments to help developers understand the purpose and behavior of the code.
+- Prioritize secure coding practices, such as input validation, output encoding, and parameterized queries, to prevent common security vulnerabilities.
+- Use Semantic Kernel and Prompty SDKs to interact with the Generative AI models.
+- Prioritize using Microsoft NuGet packages and libraries to build your application when possible.
+- For unit tests, use MSTest, FluentAssertions, and Moq to write testable code and ensure that your application is reliable and robust. As well as using AAA pattern for test structure.
+- Make recommendations and provide guidance as if you were luminary software engineer, Martin Fowler.
+
+## High-level Architecture
+- **Console App** (`GenAIDBExplorer.Console`): CLI for project management, model operations, and queries
+- **Core Library** (`GenAIDBExplorer.Core`): domain logic, semantic providers, data dictionary, export, kernel memory
+- **Tests**: MSTest + FluentAssertions + Moq, following AAA pattern in `src/GenAIDBExplorer/Tests/Unit`
+- **Infrastructure**: Bicep templates under `infra/`, deployable via GitHub Actions workflows
+- **Documentation**: usage guides in `docs/`
+- **Samples**: `samples/AdventureWorksLT` for data dictionary preprocessing
+
+## Style & Conventions
+- Target .NET 9 with C# 11 features (async/await, records, pattern matching)
+- Follow SOLID, DRY, CleanCode; meaningful, self-documenting names
+- PascalCase for types/methods; camelCase for parameters/locals
+- Dependency Injection via `HostBuilderExtensions` and `IOptions<T>`
+- Secure coding: parameterized queries, input validation, output encoding
+- Logging via `Microsoft.Extensions.Logging`
+- Code formatting: run `dotnet format` (pre-commit), follow default .editorconfig or EditorConfig conventions
+- Tests: Use AAA pattern, clear test names `Method_State_Expected`, mock with Moq, assert with FluentAssertions
+
+## Agent Rules
+- This `.github/copilot-instructions.md` directs AI agents in this repo
+- Preserve existing Azure and infrastructure guidance
+- Merge, don’t overwrite; be concise and factual
+```
+
 ### Set up Commit Message Template
 
 ```json
@@ -14,7 +62,6 @@
 ```
 
 ### Set up MCP Servers
-
 ```json
 {
     "inputs": [],
@@ -28,7 +75,7 @@
             "type": "stdio",
             "env": {}
         },
-        "microsoft.docs.mcp": {
+       "microsoft.docs.mcp": {
             "type": "http",
             "url": "https://learn.microsoft.com/api/mcp"
         },
@@ -40,7 +87,42 @@
 }
 ```
 
-## Part 2 - Upgrade Package with a Plan
+## Part 2 - Building a new Application
+
+Switch to `specification` chat mode:
+
+```md
+Create a new specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added to the #file:GenAIDBExplorer.sln . Call it spec-app-semanticmodel-webapi
+```
+
+Switch to `mentor` mode:
+
+```md
+Check the #file:spec-app-semanticmodel-webapi.md. Is there anything I should consider adding to this?
+```
+
+```md
+Why not use Query String based API versioning?
+```
+
+Switch to `Agent` mode:
+
+```md
+/create_implementation_plan from the spec #file:spec-app-semanticmodel-webapi.md. Break it down into small atomoic phases with functional code at the end of each phase.
+```
+
+## Part 3 - Workspace Index
+
+1. Click the GitHub Copilot icon in the taskbar.
+2. Show `Remotely Indexed` which indicates that the workspace is indexed in GitHub. Local Indexing is available for non GitHub repositories, but it's not as good as the GitHub index.
+3. Open [https://github.com/PlagueHO/genai-database-explorer-demo](https://github.com/PlagueHO/genai-database-explorer-demo) and press `Shift+C` to open the Copilot Chat.
+4. Enter:
+
+```md
+I want to add a new command to the console app to remove a table, view of stored procedure from the semantic model. What do I need to do?
+```
+
+## Part 4 - Upgrade Package with a Plan
 
 Switch to `Agent` chat mode "This agent will create a plan to upgrade the System.CommandLine package in the GenAIDBExplorer.Console project to version 2.0.0-beta5.25306.1. - but it probably won't do a great job of it":
 
@@ -66,26 +148,7 @@ Open [GitHub Issues](https://github.com/PlagueHO/genai-database-explorer-demo/is
 
 Open Coding Agents page: [https://github.com/copilot/agents](https://github.com/copilot/agents)
 
-
-## Part 3 - Building a new Application
-
-Switch to `specification` chat mode:
-
-```md
-Create a new specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added to the #file:GenAIDBExplorer.sln . Call it spec-app-semanticmodel-webapi
-```
-
-Switch to `mentor` mode:
-
-```md
-Check the #file:spec-app-semanticmodel-webapi.md. Is there anything I should consider adding to this?
-```
-
-```md
-Why not use Query String based API versioning?
-```
-
-## Part 4 - Adding Lazy Loading and Dirty Tracking
+## Part 5 - Adding Lazy Loading and Dirty Tracking
 
 ### Create a specification for the Semantic Model Persistence Repository
 
@@ -178,7 +241,7 @@ Switch to `Agent` mode:
 Start executing the implementation plan in #file:upgrade-data-semantic-model-repository.md. Execute it phase by phase, ensuring that after each phase the application still works correctly and no functionality is broken. If you have any questions or need clarification on any part of the plan, ask before proceeding. Make sure to update the implementation plan file with the progress and any changes made during the execution.
 ```
 
-## Part 5 - Create Tests
+## Part 6 - Create Tests
 
 Switch to `Agent` chat mode:
 
@@ -202,7 +265,7 @@ Install MSTest Best Practices prompt
 Create the tests in the implementation plan #file:...
 ```
 
-## Part 6a - Infrastructure as Code Update using Custom Chat Modes
+## Part 7a - Infrastructure as Code Update using Custom Chat Modes
 
 Switch to `azure_verified_modules_bicep` chat mode:
 
@@ -214,7 +277,7 @@ Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating?
 Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
 ```
 
-## Part 6b - Infrastructure Deployment Bicep using Prompt File
+## Part 7b - Infrastructure Deployment Bicep using Prompt File
 
 Switch to `Agent` mode:
 
@@ -222,7 +285,7 @@ Switch to `Agent` mode:
 /update_avm_modules_in_bicep in #file:main.bicep
 ```
 
-## Part 7 - Admin Tasks
+## Part 8 - Admin Tasks
 
 ```md
 Add a new GitHub Issue template based on the #file:'feature_request.yml', but instead it should be a chore_request.yml. It should be to collect issues that are related to general solution hygiene, chores and technical debt remediation like package updates, refactoring that don't specifically change the application. They might cover moving files around, refactoring code, updating GitHub actions pipelines, package updates or improving, adding test coverage. Add anything else you might think is relevant. The goal will be that this chore_request template will be used to create chores to assign to GitHub Copilot Coding Agents to do, so collecting appropriate information in the issue to ensure they can work effectively is critical.

@@ -1,5 +1,18 @@
 Refactor the #file:GenAIDBExplorer.Console.csproj to update the System.CommandLine package to use version 2.0.0-beta5.25306.1.
 [end]
+Create a plan for updating the package System.CommandLine in #file:GenAIDBExplorer.Console from the current version in the project to 2.0.0-beta5.25306.1. Refer to the migration instructions in https://learn.microsoft.com/en-us/dotnet/standard/commandline/migration-guide-2.0.0-beta5
+[end]
+/create_github_issue_from_implementation_plan PlanFile:#file:upgrade-system-commandline-beta5.md using #file:chore_request.yml template
+[end]
+Create a new specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added to the #file:GenAIDBExplorer.sln . Call it spec-app-semanticmodel-webapi
+[end]
+Check the #file:spec-app-semanticmodel-webapi.md. Is there anything I should consider adding to this?
+[end]
+Why not use Query String based API versioning?
+[end]
+/create_implementation_plan from the spec #file:spec-app-semanticmodel-webapi.md. Break it down into small atomoic phases with functional code at the end of each phase.
+[end]
+
 Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
 [end]
 Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
