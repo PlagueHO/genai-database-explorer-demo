@@ -28,8 +28,6 @@ When creating application code, provide comprehensive guidance and best practice
 - **Samples**: `samples/AdventureWorksLT` for data dictionary preprocessing
 
 ## Style & Conventions
-- Target .NET 9 with C# 11 features (async/await, records, pattern matching)
-- Follow SOLID, DRY, CleanCode; meaningful, self-documenting names
 - PascalCase for types/methods; camelCase for parameters/locals
 - Dependency Injection via `HostBuilderExtensions` and `IOptions<T>`
 - Secure coding: parameterized queries, input validation, output encoding
