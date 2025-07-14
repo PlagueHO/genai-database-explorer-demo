@@ -1,5 +1,7 @@
 // Methods for determining if tables, views and stored procedures exist in the semantic model by schema and name. Don't use Linq.
 [end]
+Implement methods for getting a list of tables, views or stored procedures based on a regex of the name and the exact schema from the semantic model.
+[end]
 // Create a persistent agent using Azure.AI.Agents.Persistent by first creating an agentClient
 [end]
 Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should use the #file:GenAIDBExplorer.Core project to the access to the semantic model.
