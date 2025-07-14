@@ -183,7 +183,7 @@ Create a plan for updating the package System.CommandLine in #file:GenAIDBExplor
 Switch to `Agent` mode:
 
 ```md
-/create_github_issue_from_implementation_plan #file:upgrade-system-commandline-beta5.md using GitHub issue template #file:chore_request.yml template
+/create-github-issue-from-implementation-plan #file:upgrade-system-commandline-beta5.md using GitHub issue template #file:chore_request.yml template
 ```
 
 Swtich to Coding Agent:
@@ -199,19 +199,17 @@ Open Coding Agents page: [https://github.com/copilot/agents](https://github.com/
 Switch to `Agent` mode:
 
 ```md
-/create_specification for the current implementation of the Semantic Model in the #file:GenAIDBExplorer.Core.
+/create-specification for the current implementation of the Semantic Model in the #file:GenAIDBExplorer.Core and call it `spec-data-semantic-model`
 ```
 
 Switch to `/expert_dotnet_software_engineer` chat mode:
 
 ```md
-How could the implementation of this specification be improved to meet best practices?
+How could the implementation of this #file:spec-data-semantic-model.md be improved to meet best practices?
 ```
 
-Switch to `/expert_dotnet_software_engineer` chat mode:
-
 ```md
-Review the #file:data-semantic-model-persistence-repository.md  making any note of performance problems, especially as we increase the number of entities? List these as a table containing:
+Review the #file:spec-data-semantic-model.md making any note of performance problems, especially as we increase the number of entities? List these as a table containing:
 - Issue description
 - Recommendation to resolve
 - Priority (High, Medium, Low)
@@ -224,35 +222,31 @@ Review the #file:data-semantic-model-persistence-repository.md  making any note 
 Switch to `janitor` chat mode:
 
 ```md
-Hey, what janitorial work is needed for the semantic repository?
-```
-
-```md
-Can you read the #file:spec-data-semantic-model-repository.md and review your janitorial recommendations against that and make sure you're not recommending to remove something that is in the spec?
+Create a table of suggested janitorial tasks that are needed for the Semantic Model #file:SemanticModel.cs based on the current implementation.
 ```
 
 ### Identify performance issues and suggest improvements
 
 ```md
-What performance issues might be faced with the current implementation of the specification of #file:data-semantic-model-persistence-repository.md ? Put the answer in a table and include suggestions for improving performance of the specification.
+What performance issues might be faced with the current implementation of the specification of #file:spec-data-semantic-model.md ? Put the answer in a table and include suggestions for improving performance of the specification.
 ```
 
 ### Add Lazy Loading and Dirty Tracking Requirements to the specification
 
 ```md
-I'd like to implement Lazy loading so that schema items are only completely loaded when they are acccessed and marking schema items as dirty, so that only changed items need to be saved. Please update the #file:data-semantic-model-persistence-repository.md specification with this requirement.
+I'd like to implement Lazy loading so that schema items are only completely loaded when they are acccessed and marking schema items as dirty, so that only changed items need to be saved. Please update the #file:spec-data-semantic-model.md specification with this requirement.
 ```
 
 ### Identify missing implementations in the current code
 
 ```md
-Compare the #file:data-semantic-model-persistence-repository.md specification with the current implementation of the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs and identify what is not implemented.
+Compare the #file:spec-data-semantic-model.md specification with the current implementation of the #file:SchemaRepository.cs and #file:SemanticModelProvider.cs and identify what is not implemented.
 ```
 
 ### Create the GitHub Issue for the feature request
 
 ```md
-/create_github_issue_feature_from_spec based on the features that are not currently implemented in the SpecFile:#file:data-semantic-model-persistence-repository.md . Identify the tasks that need to be included based on what is missing from #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Use the #create_issue tool to create the issue in the GitHub repository using the #file:feature_request.yml template.
+/create_github_issue_feature_from_spec based on the features that are not currently implemented in the #file:spec-data-semantic-model.md . Identify the tasks that need to be included based on what is missing from #file:SchemaRepository.cs and #file:SemanticModelProvider.cs. Use the #create_issue tool to create the issue in the GitHub repository using the #file:feature_request.yml template.
 ```
 
 ### Force the creation of the GitHub issue
@@ -261,52 +255,20 @@ Compare the #file:data-semantic-model-persistence-repository.md specification wi
 Go ahead and create that as an GitHub issue using the #file:feature_request.yml issue template
 ```
 
-```md
-Check that the #file:main.bicep meets the specifications outlined in #file:infrastructure-deployment-bicep-avm.md. If it doesn't meet any of the requirements, list them in a table and identify why they don't meet the requirement and how to resolve it.
-```
-
-```md
-Add a requirement to the #file:infrastructure-deployment-bicep-avm.md that requires that the main.bicepparam reads all values from environment variables named appropriately for az developer CLI and formatted upper case with underscore separating names. E.g.
-param environmentName = readEnvironmentVariable('AZURE_ENV_NAME', 'azdtemp')
-param location = readEnvironmentVariable('AZURE_LOCATION', 'EastUS2')
-````
-
-### Create a plan for the Semantic Model Persistence Repository updates
-
-```md
-/create_implementation_plan PlanPurpose:'Data Semantic Model Repository Updates' based on the plan that was just defined to implement the missing requirements. After each Phase of the plan, the application should still work correctly and no functionality should be not working - can you confirm this?
-```
-
-### Start executing the plan
-
-Switch to `Agent` mode:
-
-```md
-Start executing the implementation plan in #file:upgrade-data-semantic-model-repository.md. Execute it phase by phase, ensuring that after each phase the application still works correctly and no functionality is broken. If you have any questions or need clarification on any part of the plan, ask before proceeding. Make sure to update the implementation plan file with the progress and any changes made during the execution.
-```
-
 ## Part 6 - Create Tests
 
 Switch to `Agent` chat mode:
 
 ```md
-/suggest_awesome_github_copilot_prompts MSTests
+/csharp-mstest Review #file:spec-data-semantic-model.md and identify any areas that need unit tests. Create a list of unit tests that should be created to ensure the functionality is tested.
 ```
 
 ```md
-Install MSTest Best Practices prompt
+/create-implementation-plan for implementing the unit tests identified in the previous step in file `plan-data-semantic-model-unit-tests.md`.
 ```
 
 ```md
-/csharp-mstest Review #file:spec-data-semantic-model-repository.md and identify any areas that need unit tests. Create a list of unit tests that should be created to ensure the functionality is tested.
-```
-
-```md
-/create_plan for implementing the unit tests identified in the previous step.
-```
-
-```md
-Create the tests in the implementation plan #file:...
+Create the tests in the implementation plan #file:plan-data-semantic-model-unit-tests.md.
 ```
 
 ## Part 7a - Infrastructure as Code Update using Custom Chat Modes
@@ -326,7 +288,7 @@ Nah, can you use #create_issue and the #file:chore_request.yml template to creat
 Switch to `Agent` mode:
 
 ```md
-/update_avm_modules_in_bicep in #file:main.bicep
+/update-avm-modules-in-bicep in #file:main.bicep
 ```
 
 ## Part 8 - Admin Tasks
