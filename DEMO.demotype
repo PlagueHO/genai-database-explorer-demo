@@ -1,18 +1,30 @@
-Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should use the #file:GenAIDBExplorer.Core project to the access to the semantic model.
+// Methods for determining if tables, views and stored procedures exist in the semantic model by schema and name. Don't use Linq.
 [end]
-Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+// Create a persistent agent using Azure.AI.Agents.Persistent by first creating an agentClient
 [end]
-Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should use the #file:GenAIDBExplorer.Core project to the access to the semantic model.
 [end]
-/create_specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `GenAIDBExplorer.WebApi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
 [end]
-Check the #file:spec-app-semanticmodel-webapi.md. Is there anything I should consider adding to this?
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `GenAIDBExplorer.WebApi`. Make sure you first look up the relevant documentation using #microsoft_docs_search
+[end]
+/create-specification for a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call the spec `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0. Ensure you first look up any other relevant documentation using #microsoft_docs_search and include that in the spec.
+[end]
+Review the #file:spec-app-semanticmodel-webapi.md. How could I make this more maintainable, secure and performant? Give me a list of suggestions in a table with the following columns:
+- Suggestion
+- Reasoning
+- Difficulty to implement (High, Medium, Low)
+- Benefit of implementing the suggestion
 [end]
 Why not use Query String based API versioning?
 [end]
 /create-implementation-plan from the spec #file:spec-app-semanticmodel-webapi.md. Break it down into small atomoic phases with a complete working, buildable project at the end of each phase. Call it `plan-app-semanticmodel-webapi-v1`.
 [end]
 Build out Phase 1 of the implementation plan #file:plan-app-semanticmodel-webapi-v1.md. Update the completion status of the plan as you go.
+[end]
+@workspace How do I add a new Command to the Console App to remove semantic model items?
+[end]
+How do I add a new Command to the Console App to remove semantic model items?
 [end]
 Refactor the #file:GenAIDBExplorer.Console.csproj to update the System.CommandLine package to use version 2.0.0-beta5.25306.1.
 [end]

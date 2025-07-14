@@ -1,5 +1,21 @@
 # Demo steps
 
+## Part 0 - GitHub Copilot
+
+1. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/Models/SemanticModel/SemanticModel.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/Models/SemanticModel/SemanticModel.cs).
+2. Go to the bottom of the file and add:
+
+```csharp
+// Methods for determining if tables, views and stored procedures exist in the semantic model by schema and name. Don't use Linq.
+```
+
+3. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs).
+4. At line 36, add:
+
+```csharp
+// Create a persistent agent using Azure.AI.Agents.Persistent by first creating an agentClient
+```
+
 ## Part 1 - Customize Copilot
 
 ### Set up Copilot Instructions
@@ -92,27 +108,31 @@ When creating application code, provide comprehensive guidance and best practice
 Switch to `Agent` chat mode:
 
 ```md
-Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should use the #file:GenAIDBExplorer.Core project to the access to the semantic model.
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should use the #file:GenAIDBExplorer.Core project to the access to the semantic model.
 ```
 
 This will do OK... but probably not perfectly. So let's refine it a bit.
 
 ```md
-Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `GenAIDBExplorer.WebApi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
 ```
 
 ```md
-Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `GenAIDBExplorer.WebApi`. Make sure you first look up the relevant documentation using #microsoft_docs_search
 ```
 
 ```md
-/create_specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+/create-specification for a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call the spec `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0. Ensure you first look up any other relevant documentation using #microsoft_docs_search and include that in the spec.
 ```
 
 Switch to `mentor` mode:
 
 ```md
-Check the #file:spec-app-semanticmodel-webapi.md. Is there anything I should consider adding to this?
+Review the #file:spec-app-semanticmodel-webapi.md. How could I make this more maintainable, secure and performant? Give me a list of suggestions in a table with the following columns:
+- Suggestion
+- Reasoning
+- Difficulty to implement (High, Medium, Low)
+- Benefit of implementing the suggestion
 ```
 
 ```md
