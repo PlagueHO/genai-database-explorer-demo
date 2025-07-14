@@ -16,10 +16,8 @@
 Implement methods for getting a list of tables, views or stored procedures based on a regex of the name and the exact schema from the semantic model.
 ```
 
-```csharp
-
-3. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs).
-4. At line 36, add:
+5. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs).
+6. At line 36, add:
 
 ```csharp
 // Create a persistent agent using Azure.AI.Agents.Persistent by first creating an agentClient
