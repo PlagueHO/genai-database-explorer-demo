@@ -89,10 +89,24 @@ When creating application code, provide comprehensive guidance and best practice
 
 ## Part 2 - Building a new Application
 
-Switch to `specification` chat mode:
+Switch to `Agent` chat mode:
 
 ```md
-Create a new specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added to the #file:GenAIDBExplorer.sln . Call it spec-app-semanticmodel-webapi
+Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should use the #file:GenAIDBExplorer.Core project to the access to the semantic model.
+```
+
+This will do OK... but probably not perfectly. So let's refine it a bit.
+
+```md
+Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+```
+
+```md
+Add a .NET 9 Web API app project that provides CRUD operations over a Semantic Model found in #file:SemanticModel to the existing solution #file:GenAIDBExplorer.sln . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+```
+
+```md
+/create_specification for a .NET 9 Web API app project that provides CRUD operations over a Semantic Model #file:SemanticModel . Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `spec-app-semanticmodel-webapi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
 ```
 
 Switch to `mentor` mode:
@@ -108,10 +122,20 @@ Why not use Query String based API versioning?
 Switch to `Agent` mode:
 
 ```md
-/create_implementation_plan from the spec #file:spec-app-semanticmodel-webapi.md. Break it down into small atomoic phases with functional code at the end of each phase.
+/create-implementation-plan from the spec #file:spec-app-semanticmodel-webapi.md. Break it down into small atomoic phases with a complete working, buildable project at the end of each phase. Call it `plan-app-semanticmodel-webapi-v1`.
+```
+
+```md
+Build out Phase 1 of the implementation plan #file:plan-app-semanticmodel-webapi-v1.md. Update the completion status of the plan as you go.
 ```
 
 ## Part 3 - Workspace Index
+
+Switch to `Agent` chat mode:
+
+```md
+@workspace How do I add a new Command to the Console App to remove semantic model items?
+```
 
 1. Click the GitHub Copilot icon in the taskbar.
 2. Show `Remotely Indexed` which indicates that the workspace is indexed in GitHub. Local Indexing is available for non GitHub repositories, but it's not as good as the GitHub index.
@@ -119,7 +143,7 @@ Switch to `Agent` mode:
 4. Enter:
 
 ```md
-I want to add a new command to the console app to remove a table, view of stored procedure from the semantic model. What do I need to do?
+How do I add a new Command to the Console App to remove semantic model items?
 ```
 
 ## Part 4 - Upgrade Package with a Plan
