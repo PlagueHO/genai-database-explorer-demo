@@ -278,5 +278,4 @@ public sealed class SemanticModel(
             storedProcedure.Accept(visitor);
         }
     }
-
 }
