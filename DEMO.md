@@ -114,7 +114,7 @@ Add a .NET 9 Web API app project that provides CRUD operations for the Semantic 
 This will do OK... but probably not perfectly. So let's refine it a bit.
 
 ```md
-Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `GenAIDBExplorer.WebApi`. Make sure you include guidance from https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
+Add a .NET 9 Web API app project that provides CRUD operations for the Semantic Model provided by #file:SemanticModel.cs to the existing solution #file:GenAIDBExplorer.sln. Don't worry about authZ/authN as it will only run locally at the moment. It should be added as a new project to the #file:GenAIDBExplorer.sln . Call it `GenAIDBExplorer.WebApi`. Make sure you include guidance from #fetch https://learn.microsoft.com/en-us/aspnet/core/fundamentals/apis?view=aspnetcore-9.0.
 ```
 
 ```md
