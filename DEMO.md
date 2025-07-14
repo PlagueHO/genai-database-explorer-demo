@@ -183,7 +183,7 @@ Create a plan for updating the package System.CommandLine in #file:GenAIDBExplor
 Switch to `Agent` mode:
 
 ```md
-/create_github_issue_from_implementation_plan PlanFile:#file:upgrade-system-commandline-beta5.md using #file:chore_request.yml template
+/create_github_issue_from_implementation_plan #file:upgrade-system-commandline-beta5.md using GitHub issue template #file:chore_request.yml template
 ```
 
 Swtich to Coding Agent:

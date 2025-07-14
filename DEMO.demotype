@@ -30,9 +30,8 @@ Refactor the #file:GenAIDBExplorer.Console.csproj to update the System.CommandLi
 [end]
 Create a plan for updating the package System.CommandLine in #file:GenAIDBExplorer.Console from the current version in the project to 2.0.0-beta5.25306.1. Refer to the migration instructions in https://learn.microsoft.com/en-us/dotnet/standard/commandline/migration-guide-2.0.0-beta5
 [end]
-/create_github_issue_from_implementation_plan PlanFile:#file:upgrade-system-commandline-beta5.md using #file:chore_request.yml template
+/create_github_issue_from_implementation_plan #file:upgrade-system-commandline-beta5.md using GitHub issue template #file:chore_request.yml template
 [end]
-
 Hey, do any of the Azure Verified Modules in the #file:main.bicep need updating? If so, what are details on the modules that need updating?
 [end]
 Nah, can you use #create_issue and the #file:chore_request.yml template to create an issue for each of the modules that need an update? All good yeah?
