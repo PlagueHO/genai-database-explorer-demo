@@ -42,10 +42,9 @@ public class QueryModelCommandHandler(
     /// <returns>The query command.</returns>
     public static Command SetupCommand(IHost host)
     {
-        var projectPathOption = new Option<DirectoryInfo>(["--project", "-p"])
+        var projectPathOption = new Option<DirectoryInfo>("--project")
         {
-            Description = "The path to the GenAI Database Explorer project."
-        {
+            Description = "The path to the GenAI Database Explorer project.",
             Required = true
         };
 
@@ -53,10 +52,11 @@ public class QueryModelCommandHandler(
         queryCommand.Options.Add(projectPathOption);
         queryCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
             var handler = host.Services.GetRequiredService<QueryModelCommandHandler>();
-            var options = new QueryModelCommandHandlerOptions(projectPath);
+            var options = new QueryModelCommandHandlerOptions(projectPath!);
             await handler.HandleAsync(options);
-        }, projectPathOption);
+        });
 
         return queryCommand;
     }

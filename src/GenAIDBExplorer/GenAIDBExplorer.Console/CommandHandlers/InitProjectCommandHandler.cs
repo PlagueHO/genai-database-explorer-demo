@@ -39,13 +39,12 @@ public class InitProjectCommandHandler(
     /// <returns>The init-project command.</returns>
     public static Command SetupCommand(IHost host)
     {
-        var projectPathOption = new Option<DirectoryInfo>(
-            ["--project", "-p"]
-        )
+        var projectPathOption = new Option<DirectoryInfo>("--project")
         {
             Description = "The path to the GenAI Database Explorer project.",
             Required = true
         };
+        projectPathOption.Aliases.Add("-p");
 
         var initCommand = new Command("init-project", "Initialize a GenAI Database Explorer project.");
         initCommand.Options.Add(projectPathOption);

@@ -38,25 +38,19 @@ namespace GenAIDBExplorer.Console.CommandHandlers
         /// <returns>The show command.</returns>
         public static Command SetupCommand(IHost host)
         {
-            var projectPathOption = new Option<DirectoryInfo>(
-                ["--project", "-p"]
-            )
+            var projectPathOption = new Option<DirectoryInfo>("--project")
             {
                 Description = "The path to the GenAI Database Explorer project.",
                 Required = true
             };
 
-            var schemaNameOption = new Option<string>(
-                ["--schemaName", "-s"]
-            )
+            var schemaNameOption = new Option<string>("--schemaName")
             {
                 Description = "The schema name of the object to show.",
                 Required = true
             };
 
-            var nameOption = new Option<string>(
-                ["--name", "-n"]
-            )
+            var nameOption = new Option<string>("--name")
             {
                 Description = "The name of the object to show.",
                 Required = true

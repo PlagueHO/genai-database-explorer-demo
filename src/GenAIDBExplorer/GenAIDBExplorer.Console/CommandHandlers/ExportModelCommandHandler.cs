@@ -48,29 +48,26 @@ public class ExportModelCommandHandler : CommandHandler<ExportModelCommandHandle
     /// <returns>The export-model command.</returns>
     public static Command SetupCommand(IHost host)
     {
-        var projectPathOption = new Option<DirectoryInfo>(
-            aliases: new[] { "--project", "-p" },
-            description: "The path to the GenAI Database Explorer project."
-        )
+        var projectPathOption = new Option<DirectoryInfo>("--project")
         {
+            Description = "The path to the GenAI Database Explorer project.",
             Required = true
         };
 
-        var outputFileNameOption = new Option<string?>(["--outputFileName", "-o"])
+        var outputFileNameOption = new Option<string?>("--outputFileName")
         {
-            Description = "The path to the output file.";
+            Description = "The path to the output file."
+        };
 
-        var fileTypeOption = new Option<string>(
-            aliases: ["--fileType", "-f"],
-            description: "The type of the output files. Defaults to 'markdown'.",
-            getDefaultValue: () => "markdown"
-        );
+        var fileTypeOption = new Option<string>("--fileType")
+        {
+            Description = "The type of the output files. Defaults to 'markdown'."
+        };
 
-        var splitFilesOption = new Option<bool>(
-            aliases: ["--splitFiles", "-s"],
-            description: "Flag to split the export into individual files per entity.",
-            getDefaultValue: () => false
-        );
+        var splitFilesOption = new Option<bool>("--splitFiles")
+        {
+            Description = "Flag to split the export into individual files per entity."
+        };
 
         var exportModelCommand = new Command("export-model", "Export the semantic model from a GenAI Database Explorer project.");
         exportModelCommand.Options.Add(projectPathOption);
@@ -80,10 +77,14 @@ public class ExportModelCommandHandler : CommandHandler<ExportModelCommandHandle
 
         exportModelCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
+            var outputFileName = parseResult.GetValue(outputFileNameOption);
+            var fileType = parseResult.GetValue(fileTypeOption) ?? "markdown";
+            var splitFiles = parseResult.GetValue(splitFilesOption);
             var handler = host.Services.GetRequiredService<ExportModelCommandHandler>();
-            var options = new ExportModelCommandHandlerOptions(projectPath, outputFileName, fileType, splitFiles);
+            var options = new ExportModelCommandHandlerOptions(projectPath!, outputFileName, fileType, splitFiles);
             await handler.HandleAsync(options);
-        }, projectPathOption, outputFileNameOption, fileTypeOption, splitFilesOption);
+        });
 
         return exportModelCommand;
     }

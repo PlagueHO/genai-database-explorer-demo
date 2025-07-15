@@ -40,23 +40,23 @@ public class ExtractModelCommandHandler(
     /// <returns>The extract model command.</returns>
     public static Command SetupCommand(IHost host)
     {
-        var projectPathOption = new Option<DirectoryInfo>(["--project", "-p"])
+        var projectPathOption = new Option<DirectoryInfo>("--project")
         {
             Description = "The path to the GenAI Database Explorer project.",
             Required = true
         };
 
-        var skipTablesOption = new Option<bool>(["--skipTables"])
+        var skipTablesOption = new Option<bool>("--skipTables")
         {
             Description = "Flag to skip tables during the extract model process."
         };
 
-        var skipViewsOption = new Option<bool>(["--skipViews"])
+        var skipViewsOption = new Option<bool>("--skipViews")
         {
             Description = "Flag to skip views during the extract model process."
         };
 
-        var skipStoredProceduresOption = new Option<bool>(["--skipStoredProcedures"])
+        var skipStoredProceduresOption = new Option<bool>("--skipStoredProcedures")
         {
             Description = "Flag to skip stored procedures during the extract model process."
         };
