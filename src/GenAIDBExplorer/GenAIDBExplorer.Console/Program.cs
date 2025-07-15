@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Parsing;
 using Microsoft.Extensions.Hosting;
 using GenAIDBExplorer.Console.CommandHandlers;
 using GenAIDBExplorer.Console.Extensions;
@@ -25,15 +26,16 @@ internal static class Program
             .Build();
 
         // Set up commands
-        rootCommand.AddCommand(InitProjectCommandHandler.SetupCommand(host));
-        rootCommand.AddCommand(DataDictionaryCommandHandler.SetupCommand(host));
-        rootCommand.AddCommand(EnrichModelCommandHandler.SetupCommand(host));
-        rootCommand.AddCommand(ExportModelCommandHandler.SetupCommand(host));
-        rootCommand.AddCommand(ExtractModelCommandHandler.SetupCommand(host));
-        rootCommand.AddCommand(QueryModelCommandHandler.SetupCommand(host));
-        rootCommand.AddCommand(ShowObjectCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(InitProjectCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(DataDictionaryCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(EnrichModelCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(ExportModelCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(ExtractModelCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(QueryModelCommandHandler.SetupCommand(host));
+        rootCommand.Subcommands.Add(ShowObjectCommandHandler.SetupCommand(host));
 
         // Invoke the root command
-        await rootCommand.InvokeAsync(args);
+        var parseResult = rootCommand.Parse(args);
+        await parseResult.InvokeAsync();
     }
 }

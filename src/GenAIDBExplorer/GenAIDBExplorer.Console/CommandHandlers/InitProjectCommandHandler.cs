@@ -40,21 +40,22 @@ public class InitProjectCommandHandler(
     public static Command SetupCommand(IHost host)
     {
         var projectPathOption = new Option<DirectoryInfo>(
-            aliases: ["--project", "-p"],
-            description: "The path to the GenAI Database Explorer project."
+            ["--project", "-p"]
         )
         {
-            IsRequired = true
+            Description = "The path to the GenAI Database Explorer project.",
+            Required = true
         };
 
         var initCommand = new Command("init-project", "Initialize a GenAI Database Explorer project.");
-        initCommand.AddOption(projectPathOption);
-        initCommand.SetHandler(async (DirectoryInfo projectPath) =>
+        initCommand.Options.Add(projectPathOption);
+        initCommand.SetAction(async (parseResult) =>
         {
+            var projectPath = parseResult.GetValue(projectPathOption);
             var handler = host.Services.GetRequiredService<InitProjectCommandHandler>();
-            var options = new InitProjectCommandHandlerOptions(projectPath);
+            var options = new InitProjectCommandHandlerOptions(projectPath!);
             await handler.HandleAsync(options);
-        }, projectPathOption);
+        });
 
         return initCommand;
     }

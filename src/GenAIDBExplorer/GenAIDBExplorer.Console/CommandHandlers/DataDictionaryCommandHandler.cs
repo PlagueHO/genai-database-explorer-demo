@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -46,36 +47,32 @@ public class DataDictionaryCommandHandler(
     /// <returns>The data-dictionary command.</returns>
     public static Command SetupCommand(IHost host)
     {
-        var projectPathOption = new Option<DirectoryInfo>(
-            aliases: ["--project", "-p"],
-            description: "The path to the GenAI Database Explorer project."
-        )
+        var projectPathOption = new Option<DirectoryInfo>(["--project", "-p"])
         {
-            IsRequired = true
+            Description = "The path to the GenAI Database Explorer project."
+        {
+            Required = true
         };
 
-        var sourcePathOption = new Option<string>(
-            aliases: ["--source-path", "-d"],
-            description: "The path to the source directory containing data dictionary files. Supports file masks."
-        )
+        var sourcePathOption = new Option<string>(["--source-path", "-d"])
         {
-            IsRequired = true
+            Description = "The path to the source directory containing data dictionary files. Supports file masks."
+        {
+            Required = true
         };
 
-        var schemaNameOption = new Option<string>(
-            aliases: ["--schema", "-s"],
-            description: "The schema name of the object to process."
-        )
+        var schemaNameOption = new Option<string>(["--schema", "-s"])
         {
-            ArgumentHelpName = "schemaName"
+            Description = "The schema name of the object to process."
+        {
+            HelpName = "schemaName"
         };
 
-        var nameOption = new Option<string>(
-            aliases: ["--name", "-n"],
-            description: "The name of the object to process."
-        )
+        var nameOption = new Option<string>(["--name", "-n"])
         {
-            ArgumentHelpName = "name"
+            Description = "The name of the object to process."
+        {
+            HelpName = "name"
         };
 
         var showOption = new Option<bool>(
@@ -97,7 +94,7 @@ public class DataDictionaryCommandHandler(
             nameOption,
             showOption
         };
-        tableCommand.SetHandler(async (DirectoryInfo projectPath, string sourcePathPattern, string schemaName, string name, bool show) =>
+        tableCommand.SetAction(async (parseResult) =>
         {
             var handler = host.Services.GetRequiredService<DataDictionaryCommandHandler>();
             var options = new DataDictionaryCommandHandlerOptions(
@@ -111,7 +108,7 @@ public class DataDictionaryCommandHandler(
             await handler.HandleAsync(options);
         }, projectPathOption, sourcePathOption, schemaNameOption, nameOption, showOption);
 
-        dataDictionaryCommand.AddCommand(tableCommand);
+        dataDictionaryCommand.Subcommands.Add(tableCommand);
 
         return dataDictionaryCommand;
     }

@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Resources;
 
 namespace GenAIDBExplorer.Console.CommandHandlers;
@@ -40,12 +41,11 @@ public class EnrichModelCommandHandler(
     /// <returns>The enrich-model command.</returns>
     public static Command SetupCommand(IHost host)
     {
-        var projectPathOption = new Option<DirectoryInfo>(
-            aliases: ["--project", "-p"],
-            description: "The path to the GenAI Database Explorer project."
-        )
+        var projectPathOption = new Option<DirectoryInfo>(["--project", "-p"])
         {
-            IsRequired = true
+            Description = "The path to the GenAI Database Explorer project."
+        {
+            Required = true
         };
 
         var skipTablesOption = new Option<bool>(
@@ -66,20 +66,18 @@ public class EnrichModelCommandHandler(
             getDefaultValue: () => false
         );
 
-        var schemaNameOption = new Option<string>(
-            aliases: ["--schema", "-s"],
-            description: "The schema name of the object to enrich."
-        )
+        var schemaNameOption = new Option<string>(["--schema", "-s"])
         {
-            ArgumentHelpName = "schemaName"
+            Description = "The schema name of the object to enrich."
+        {
+            HelpName = "schemaName"
         };
 
-        var nameOption = new Option<string>(
-            aliases: ["--name", "-n"],
-            description: "The name of the object to enrich."
-        )
+        var nameOption = new Option<string>(["--name", "-n"])
         {
-            ArgumentHelpName = "name"
+            Description = "The name of the object to enrich."
+        {
+            HelpName = "name"
         };
 
         var showOption = new Option<bool>(
@@ -105,7 +103,7 @@ public class EnrichModelCommandHandler(
             nameOption,
             showOption
         };
-        tableCommand.SetHandler(async (DirectoryInfo projectPath, string schemaName, string name, bool show) =>
+        tableCommand.SetAction(async (parseResult) =>
         {
             var handler = host.Services.GetRequiredService<EnrichModelCommandHandler>();
             var options = new EnrichModelCommandHandlerOptions(
@@ -128,7 +126,7 @@ public class EnrichModelCommandHandler(
             nameOption,
             showOption
         };
-        viewCommand.SetHandler(async (DirectoryInfo projectPath, string schemaName, string name, bool show) =>
+        viewCommand.SetAction(async (parseResult) =>
         {
             var handler = host.Services.GetRequiredService<EnrichModelCommandHandler>();
             var options = new EnrichModelCommandHandlerOptions(
@@ -151,7 +149,7 @@ public class EnrichModelCommandHandler(
             nameOption,
             showOption
         };
-        storedProcedureCommand.SetHandler(async (DirectoryInfo projectPath, string schemaName, string name, bool show) =>
+        storedProcedureCommand.SetAction(async (parseResult) =>
         {
             var handler = host.Services.GetRequiredService<EnrichModelCommandHandler>();
             var options = new EnrichModelCommandHandlerOptions(
@@ -168,12 +166,12 @@ public class EnrichModelCommandHandler(
         }, projectPathOption, schemaNameOption, nameOption, showOption);
 
         // Add subcommands to the 'enrich-model' command
-        enrichModelCommand.AddCommand(tableCommand);
-        enrichModelCommand.AddCommand(viewCommand);
-        enrichModelCommand.AddCommand(storedProcedureCommand);
+        enrichModelCommand.Subcommands.Add(tableCommand);
+        enrichModelCommand.Subcommands.Add(viewCommand);
+        enrichModelCommand.Subcommands.Add(storedProcedureCommand);
 
         // Set default handler if no subcommand is provided
-        enrichModelCommand.SetHandler(async (DirectoryInfo projectPath, bool skipTables, bool skipViews, bool skipStoredProcedures) =>
+        enrichModelCommand.SetAction(async (parseResult) =>
         {
             var handler = host.Services.GetRequiredService<EnrichModelCommandHandler>();
             var options = new EnrichModelCommandHandlerOptions(projectPath, skipTables, skipViews, skipStoredProcedures);
