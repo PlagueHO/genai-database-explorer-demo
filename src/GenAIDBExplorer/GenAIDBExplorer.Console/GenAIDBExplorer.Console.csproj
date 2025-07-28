@@ -9,11 +9,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta6.25358.103" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +39,20 @@
   </ItemGroup>
 
   <ItemGroup>
+
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.7" />
+
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.7" />
+
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.7" />
+
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.61.0" />
+
+    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.61.0" />
+
+    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Liquid" Version="1.61.0" />
+
+    <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.61.0" />
     <EmbeddedResource Update="Resources\ErrorMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ErrorMessages.Designer.cs</LastGenOutput>
