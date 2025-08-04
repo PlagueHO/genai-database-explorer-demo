@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Liquid" Version="1.61.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Prompty" Version="1.55.0-beta" />
     <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.61.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
     <PackageReference Include="YamlDotNet" Version="16.3.0" />
   </ItemGroup>
 
