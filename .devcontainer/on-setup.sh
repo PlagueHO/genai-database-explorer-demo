@@ -37,10 +37,6 @@ install_dotnet_tool() {
 }
 
 # Install tools with retries
-install_dotnet_tool "HttpRepl" "Microsoft.dotnet-httprepl" || true
-install_dotnet_tool "Entity Framework Core CLI" "dotnet-ef" || true
-install_dotnet_tool "Library Manager CLI" "Microsoft.Web.LibraryManager.Cli" || true
-install_dotnet_tool "Outdated Tool" "dotnet-outdated-tool" || true
 install_dotnet_tool "Format Tool" "dotnet-format" || true
 
 # Update Azure CLI and install extensions
@@ -62,6 +58,18 @@ fi
 echo "🔧 Configuring Git..."
 git config --global init.defaultBranch main || echo "⚠️  Git config failed"
 git config --global pull.rebase false || echo "⚠️  Git config failed"
+
+# Ensure PowerShell PSReadLine history directory exists and is writable for the 'vscode' user
+echo "🧭 Ensuring PowerShell history directory exists and is writable..."
+PSHISTORY_DIR="/home/vscode/.local/share/powershell/PSReadLine"
+if sudo mkdir -p "$PSHISTORY_DIR"; then
+    # Ensure correct ownership and permissions so PowerShell can write history
+    sudo chown -R vscode:vscode "$(dirname "$PSHISTORY_DIR")"
+    sudo chmod -R u+rwX "$(dirname "$PSHISTORY_DIR")"
+    echo "✅ PowerShell history directory ensured: $PSHISTORY_DIR"
+else
+    echo "⚠️  Could not create PowerShell history directory: $PSHISTORY_DIR"
+fi
 
 echo "✅ DevContainer setup completed successfully!"
 echo "🚀 Ready for .NET 9 + C# 14 development with Azure tooling"
