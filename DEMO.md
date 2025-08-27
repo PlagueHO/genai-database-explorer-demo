@@ -3,21 +3,21 @@
 ## Part 0 - GitHub Copilot
 
 1. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/Models/SemanticModel/SemanticModel.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/Models/SemanticModel/SemanticModel.cs).
-2. Go to the bottom of the file and add:
+1. Go to the bottom of the file and add:
 
-```csharp
-// Methods for determining if tables, views and stored procedures exist in the semantic model by schema and name. Don't use Linq.
-```
+    ```csharp
+    // Methods for determining if tables, views and stored procedures exist in the semantic model by schema and name. Don't use Linq.
+    ```
 
-3. In the same file, press `Ctrl+i` to open the Copilot Chat inline.
-4. Enter the following prompt:
+1. In the same file, press `Ctrl+i` to open the Copilot Chat inline.
+1. Enter the following prompt:
 
-```md
-Implement methods for getting a list of tables, views or stored procedures based on a regex of the name and the exact schema from the semantic model.
-```
+    ```md
+    Implement methods for getting a list of tables, views or stored procedures based on a regex of the name and the exact schema from the semantic model.
+    ```
 
-5. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs).
-6. At line 36, add:
+1. Open [src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs](src/GenAIDBExplorer/GenAIDBExplorer.Core/SemanticKernel/SemanticKernelFactory.cs).
+1. At line 36, add:
 
 ```csharp
 // Create a persistent agent using Azure.AI.Agents.Persistent by first creating an agentClient
@@ -85,6 +85,7 @@ When creating application code, provide comprehensive guidance and best practice
 ```
 
 ### Set up MCP Servers
+
 ```json
 {
     "inputs": [],

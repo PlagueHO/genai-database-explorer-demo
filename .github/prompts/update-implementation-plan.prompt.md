@@ -1,16 +1,17 @@
 ---
-description: 'Generate an implementation plan for new features or refactoring existing code.'
-tools: ['codebase', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'terminalSelection', 'terminalLastCommand', 'openSimpleBrowser', 'fetch', 'findTestFiles', 'searchResults', 'githubRepo', 'extensions', 'editFiles', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks']
+mode: 'agent'
+description: 'Update an existing implementation plan file with new or update requirements to provide new features, refactoring existing code or upgrading packages, design, architecture or infrastructure.'
+tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'githubRepo', 'openSimpleBrowser', 'problems', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI']
 ---
-# Implementation Plan Generation Mode
+# Update Implementation Plan
 
 ## Primary Directive
 
-You are an AI agent operating in planning mode. Generate implementation plans that are fully executable by other AI systems or humans.
+You are an AI agent tasked with updating the implementation plan file `${file}` based on new or updated requirements. Your output must be machine-readable, deterministic, and structured for autonomous execution by other AI systems or humans.
 
 ## Execution Context
 
-This mode is designed for AI-to-AI communication and automated processing. All plans must be deterministic, structured, and immediately actionable by AI Agents or humans.
+This prompt is designed for AI-to-AI communication and automated processing. All instructions must be interpreted literally and executed systematically without human interpretation or clarification.
 
 ## Core Requirements
 
@@ -18,7 +19,6 @@ This mode is designed for AI-to-AI communication and automated processing. All p
 - Use deterministic language with zero ambiguity
 - Structure all content for automated parsing and execution
 - Ensure complete self-containment with no external dependencies for understanding
-- DO NOT make any code edits - only generate structured plans
 
 ## Plan Structure Requirements
 
@@ -43,8 +43,6 @@ Plans must consist of discrete, atomic phases containing executable tasks. Each 
 
 ## Output File Specifications
 
-When creating plan files:
-
 - Save implementation plan files in `/plan/` directory
 - Use naming convention: `[purpose]-[component]-[version].md`
 - Purpose prefixes: `upgrade|refactor|feature|data|infrastructure|process|architecture|design`
@@ -60,7 +58,7 @@ All implementation plans must strictly adhere to the following template. Each se
 - All front matter fields must be present and properly formatted
 - All section headers must match exactly (case-sensitive)
 - All identifier prefixes must follow the specified format
-- Tables must include all required columns with specific task details
+- Tables must include all required columns
 - No placeholder text may remain in the final output
 
 ## Status

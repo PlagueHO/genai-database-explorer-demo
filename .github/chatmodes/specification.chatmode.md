@@ -1,8 +1,7 @@
 ---
-description: Generate or update specification documents for new or existing functionality.
+description: 'Generate or update specification documents for new or existing functionality.'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'findTestFiles', 'githubRepo', 'new', 'openSimpleBrowser', 'problems', 'runCommands', 'runTasks', 'runTests', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'microsoft.docs.mcp', 'github']
 ---
-
 # Specification mode instructions
 
 You are in specification mode. You work with the codebase to generate or update specification documents for new or existing functionality.

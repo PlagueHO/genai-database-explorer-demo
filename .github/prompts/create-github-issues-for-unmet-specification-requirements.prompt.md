@@ -5,19 +5,31 @@ tools: ['codebase', 'search', 'github', 'create_issue', 'search_issues', 'update
 ---
 # Create GitHub Issues for Unmet Specification Requirements
 
-Analyze the specification file `${file}` and compare it to the current implementation to identify requirements that are not yet implemented. For each unmet requirement, create a GitHub Issue using the `feature_request.yml` template.
+Create GitHub Issues for unimplemented requirements in the specification at `${file}`.
 
 ## Process
 
-1. Parse the specification file to extract all requirements
-2. Compare requirements to the current codebase
-3. For each unmet requirement, check for an existing issue using `search_issues`
-4. If no issue exists, create a new issue using `create_issue` and the `feature_request.yml` template
-5. Use clear, structured titles and descriptions for each issue
-6. Label issues appropriately
+1. Analyze specification file to extract all requirements
+2. Check codebase implementation status for each requirement
+3. Search existing issues using `search_issues` to avoid duplicates
+4. Create new issue per unimplemented requirement using `create_issue`
+5. Use `feature_request.yml` template (fallback to default)
+
+## Requirements
+
+- One issue per unimplemented requirement from specification
+- Clear requirement ID and description mapping
+- Include implementation guidance and acceptance criteria
+- Verify against existing issues before creation
 
 ## Issue Content
 
-- Title: Requirement name or summary
-- Description: Details and context from the specification
-- Labels: Feature, Spec, Unmet Requirement
+- Title: Requirement ID and brief description
+- Description: Detailed requirement, implementation method, and context
+- Labels: feature, enhancement (as appropriate)
+
+## Implementation Check
+
+- Search codebase for related code patterns
+- Check related specification files in `/spec/` directory
+- Verify requirement isn't partially implemented

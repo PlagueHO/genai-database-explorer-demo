@@ -1,9 +1,8 @@
 ---
 mode: 'agent'
-description: Update an existing specification file for the solution, optimized for Generative AI consumption based on new requirements or updates to any existing code.
+description: 'Update an existing specification file for the solution, optimized for Generative AI consumption based on new requirements or updates to any existing code.'
 tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'githubRepo', 'openSimpleBrowser', 'problems', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI']
 ---
-
 # Update Specification
 
 Your goal is to update the existing specification file `${file}` based on new requirements or updates to any existing code.
