@@ -1,5 +1,14 @@
 {
+    "inputs": [],
     "servers": {
+		"context7": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@upstash/context7-mcp@latest"
+			]
+		},        
         "playwright": {
             "command": "npx",
             "args": [
@@ -10,22 +19,8 @@
             "env": {}
         },
         "github": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@modelcontextprotocol/server-github"
-            ],
-            "env": {
-                "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_token}"
-            }
+            "url": "https://api.githubcopilot.com/mcp/",
+            "type": "http"
         }
-    },
-    "inputs": [
-        {
-            "id": "github_token",
-            "type": "promptString",
-            "description": "GitHub Personal Access Token",
-            "password": true
-        }
-    ]
+    }
 }

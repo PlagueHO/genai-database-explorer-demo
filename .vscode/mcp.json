@@ -1,6 +1,14 @@
 {
     "inputs": [],
     "servers": {
+		"context7": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@upstash/context7-mcp@latest"
+			]
+		},  
         "playwright": {
             "command": "npx",
             "args": [
@@ -9,10 +17,6 @@
             ],
             "type": "stdio",
             "env": {}
-        },
-        "microsoft.docs.mcp": {
-            "type": "http",
-            "url": "https://learn.microsoft.com/api/mcp"
         },
         "github": {
             "url": "https://api.githubcopilot.com/mcp/",
